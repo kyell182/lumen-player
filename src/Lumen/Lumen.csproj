@@ -12,6 +12,7 @@
     <Product>Lumen</Product>
     <Description>Moderne mediaspeler op basis van de VLC-engine</Description>
     <ApplicationIcon>Assets/lumen.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <!-- Alleen de 64-bit VLC-bibliotheken meenemen op Windows. -->
     <VlcWindowsX86Enabled>false</VlcWindowsX86Enabled>
