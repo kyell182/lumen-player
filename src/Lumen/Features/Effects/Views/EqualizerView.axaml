@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:audio="using:Lumen.Features.Effects.Audio"
+             x:Class="Lumen.Features.Effects.Views.EqualizerView"
+             x:DataType="audio:EqualizerViewModel">
+
+  <StackPanel Classes="panel-body">
+
+    <ToggleSwitch Content="Equalizer" IsChecked="{Binding IsEnabled}" />
+
+    <StackPanel Classes="setting">
+      <TextBlock Text="Voorinstelling" />
+      <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset}" PlaceholderText="Aangepast" />
+    </StackPanel>
+
+    <Grid ColumnDefinitions="Auto,*" Margin="0,4,0,0">
+      <!-- Voorversterking -->
+      <StackPanel Spacing="6" Margin="0,0,8,0">
+        <Slider Classes="band" Value="{Binding Preamp}" />
+        <TextBlock Classes="band-label" Text="Pre" />
+      </StackPanel>
+
+      <!-- Frequentiebanden -->
+      <ItemsControl Grid.Column="1" ItemsSource="{Binding Bands}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <UniformGrid Rows="1" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="audio:EqualizerBandViewModel">
+            <StackPanel Spacing="6">
+              <Slider Classes="band" Value="{Binding Gain}" />
+              <TextBlock Classes="band-label" Text="{Binding Label}" />
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </Grid>
+
+    <TextBlock Classes="secondary" FontSize="12" TextWrapping="Wrap"
+               Text="Schuif omhoog om een toonhoogte te versterken (tot +20 dB), omlaag om ze zachter te maken." />
+
+    <Button Classes="subtle compact" Content="Alles op 0" Command="{Binding ResetCommand}" />
+  </StackPanel>
+
+</UserControl>

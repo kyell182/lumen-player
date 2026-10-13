@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:audio="using:Lumen.Features.Effects.Audio"
+             x:Class="Lumen.Features.Effects.Views.SyncView"
+             x:DataType="audio:SyncViewModel">
+
+  <StackPanel Classes="panel-body">
+
+    <TextBlock Classes="panel-heading" Text="Geluid" />
+    <StackPanel Classes="setting">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Classes="secondary" Text="{Binding AudioDelayText}" />
+        <Button Grid.Column="1" Classes="icon small" Command="{Binding ResetAudioCommand}" ToolTip.Tip="Terugzetten">
+          <PathIcon Data="{StaticResource IconClose}" />
+        </Button>
+      </Grid>
+      <Slider Minimum="-3000" Maximum="3000" TickFrequency="50" IsSnapToTickEnabled="True"
+              Value="{Binding AudioDelayMs}" />
+      <TextBlock Classes="secondary" FontSize="12" TextWrapping="Wrap"
+                 Text="Loopt het geluid vóór op het beeld? Schuif naar rechts." />
+    </StackPanel>
+
+    <TextBlock Classes="panel-heading" Text="Ondertitels" />
+    <StackPanel Classes="setting">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Classes="secondary" Text="{Binding SubtitleDelayText}" />
+        <Button Grid.Column="1" Classes="icon small" Command="{Binding ResetSubtitlesCommand}" ToolTip.Tip="Terugzetten">
+          <PathIcon Data="{StaticResource IconClose}" />
+        </Button>
+      </Grid>
+      <Slider Minimum="-10000" Maximum="10000" TickFrequency="50" IsSnapToTickEnabled="True"
+              Value="{Binding SubtitleDelayMs}" />
+      <TextBlock Classes="secondary" FontSize="12" TextWrapping="Wrap"
+                 Text="Komen de ondertitels te vroeg? Schuif naar rechts. Sneltoetsen: G (vroeger) en H (later)." />
+    </StackPanel>
+  </StackPanel>
+
+</UserControl>

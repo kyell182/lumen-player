@@ -1,17 +1,26 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Lumen.Features.Playlist.Files;
 using Lumen.Infrastructure;
 
 namespace Lumen.Features.Playlist;
 
-/// <summary>De wachtrij: welke bestanden er zijn, welk bestand nu speelt en wat het volgende is.</summary>
+/// <summary>De wachtrij: welke items er zijn, welk item nu speelt, herhalen, shuffle en opslaan.</summary>
 public sealed partial class PlaylistViewModel : ObservableObject
 {
     private readonly IFilePickerService _picker;
+    private readonly PlaylistNavigator _navigator = new();
 
     [ObservableProperty]
     private PlaylistItemViewModel? _current;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(RepeatLabel), nameof(IsRepeatOn), nameof(IsRepeatOne))]
+    private RepeatMode _repeat;
+
+    [ObservableProperty]
+    private bool _isShuffle;
 
     public PlaylistViewModel(IFilePickerService picker)
     {
@@ -24,35 +33,72 @@ public sealed partial class PlaylistViewModel : ObservableObject
 
     public ObservableCollection<PlaylistItemViewModel> Items { get; } = new();
 
-    public string CountText => Items.Count == 1 ? "1 bestand" : $"{Items.Count} bestanden";
+    public string CountText => Items.Count == 1 ? "1 item" : $"{Items.Count} items";
 
-    public PlaylistItemViewModel? NextItem => ItemAt(CurrentIndex + 1);
+    public bool IsRepeatOn => Repeat != RepeatMode.Off;
 
-    public PlaylistItemViewModel? PreviousItem => CurrentIndex > 0 ? ItemAt(CurrentIndex - 1) : null;
+    public bool IsRepeatOne => Repeat == RepeatMode.One;
 
-    private int CurrentIndex => Current is null ? -1 : Items.IndexOf(Current);
+    public string RepeatLabel => Repeat switch
+    {
+        RepeatMode.All => "Alles herhalen",
+        RepeatMode.One => "Eén herhalen",
+        _ => "Niet herhalen",
+    };
+
+    /// <summary>Volgende item als de gebruiker op "volgende" klikt.</summary>
+    public PlaylistItemViewModel? NextItem => _navigator.Next(Items, Current, automatic: false);
+
+    /// <summary>Volgende item als het huidige gewoon afgelopen is (houdt rekening met "één herhalen").</summary>
+    public PlaylistItemViewModel? NextAfterEnd => _navigator.Next(Items, Current, automatic: true);
+
+    public PlaylistItemViewModel? PreviousItem => _navigator.Previous(Items, Current);
 
     /// <summary>Vervangt de lijst en geeft het eerste item terug.</summary>
-    public PlaylistItemViewModel? Replace(IEnumerable<string> paths)
+    public PlaylistItemViewModel? Replace(IEnumerable<PlaylistEntry> entries)
     {
         Current = null;
         Items.Clear();
-        Append(paths);
-        return Items.FirstOrDefault();
+        _navigator.IsShuffle = IsShuffle;
+        Append(entries);
+        return IsShuffle ? _navigator.Next(Items, null, automatic: false) : Items.FirstOrDefault();
     }
 
-    public void Append(IEnumerable<string> paths)
+    public PlaylistItemViewModel? Replace(IEnumerable<string> sources) => Replace(sources.Select(s => new PlaylistEntry(s)));
+
+    public void Append(IEnumerable<PlaylistEntry> entries)
     {
-        foreach (var path in paths)
-        {
-            Items.Add(new PlaylistItemViewModel(path));
-        }
+        foreach (var entry in entries) Items.Add(new PlaylistItemViewModel(entry));
+    }
+
+    public void Append(IEnumerable<string> sources) => Append(sources.Select(s => new PlaylistEntry(s)));
+
+    [RelayCommand]
+    private void CycleRepeat() => Repeat = Repeat switch
+    {
+        RepeatMode.Off => RepeatMode.All,
+        RepeatMode.All => RepeatMode.One,
+        _ => RepeatMode.Off,
+    };
+
+    [RelayCommand]
+    private void ToggleShuffle() => IsShuffle = !IsShuffle;
+
+    partial void OnRepeatChanged(RepeatMode value) => _navigator.Repeat = value;
+
+    partial void OnIsShuffleChanged(bool value)
+    {
+        _navigator.IsShuffle = value;
+        if (Current is not null) _navigator.MarkPlayed(Current);
     }
 
     partial void OnCurrentChanged(PlaylistItemViewModel? oldValue, PlaylistItemViewModel? newValue)
     {
         if (oldValue is not null) oldValue.IsCurrent = false;
-        if (newValue is not null) newValue.IsCurrent = true;
+        if (newValue is null) return;
+
+        newValue.IsCurrent = true;
+        _navigator.MarkPlayed(newValue);
     }
 
     [RelayCommand]
@@ -63,15 +109,13 @@ public sealed partial class PlaylistViewModel : ObservableObject
     {
         if (item == Current) return; // het spelende item blijft staan
         Items.Remove(item);
+        _navigator.Forget(item);
     }
 
     [RelayCommand]
     private void Clear()
     {
-        foreach (var item in Items.Where(i => i != Current).ToList())
-        {
-            Items.Remove(item);
-        }
+        foreach (var item in Items.Where(i => i != Current).ToList()) Remove(item);
     }
 
     [RelayCommand]
@@ -81,6 +125,12 @@ public sealed partial class PlaylistViewModel : ObservableObject
         Append(MediaFileTypes.Expand(files));
     }
 
-    private PlaylistItemViewModel? ItemAt(int index) =>
-        index >= 0 && index < Items.Count ? Items[index] : null;
+    [RelayCommand]
+    private async Task SaveAsync()
+    {
+        if (Items.Count == 0) return;
+
+        var path = await _picker.PickSaveFileAsync("Afspeellijst opslaan", "Afspeellijst.m3u", "Afspeellijst", "m3u");
+        if (path is not null) await PlaylistFileLoader.SaveAsync(path, Items.Select(i => i.Entry));
+    }
 }

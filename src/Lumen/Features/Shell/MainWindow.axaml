@@ -6,12 +6,15 @@
         xmlns:playbackViews="using:Lumen.Features.Playback.Views"
         xmlns:playlistViews="using:Lumen.Features.Playlist.Views"
         xmlns:updateViews="using:Lumen.Features.Updates.Views"
+        xmlns:effectsViews="using:Lumen.Features.Effects.Views"
+        xmlns:infoViews="using:Lumen.Features.MediaInfo.Views"
         x:Class="Lumen.Features.Shell.MainWindow"
         x:DataType="shell:MainViewModel"
         Title="{Binding WindowTitle}"
         Icon="avares://Lumen/Assets/lumen.ico"
         Width="1200" Height="760"
-        MinWidth="780" MinHeight="480"
+        MinWidth="900" MinHeight="520"
+        Topmost="{Binding Tools.IsAlwaysOnTop}"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource AppBackgroundBrush}"
         ExtendClientAreaToDecorationsHint="True"
@@ -42,7 +45,7 @@
                   IsVisible="{Binding !IsHomeVisible}" ToolTip.Tip="Startscherm">
             <PathIcon Data="{StaticResource IconHome}" />
           </Button>
-          <Button Classes="icon small" Command="{Binding OpenFilesCommand}" ToolTip.Tip="Openen (Ctrl+O)">
+          <Button x:Name="OpenButton" Classes="icon small" ToolTip.Tip="Openen: bestanden, map, netwerkstream, afspeellijst">
             <PathIcon Data="{StaticResource IconFolderOpen}" />
           </Button>
           <Button x:Name="AppearanceButton" Classes="icon small" ToolTip.Tip="Weergave: licht/donker en kleur">
@@ -67,8 +70,15 @@
         <playbackViews:PlayerView x:Name="PlayerSurface" />
         <!-- De PlayerOverlay (bediening + ondertitels) komt hier of in een apart OverlayWindow: zie MainWindow.axaml.cs -->
       </Panel>
-      <Panel Grid.Column="1" Width="320" IsVisible="{Binding IsPlaylistPanelVisible}">
+      <!-- Zijpanelen: er staat er hooguit één open -->
+      <Panel Grid.Column="1" Width="340" IsVisible="{Binding IsPlaylistPanelVisible}">
         <playlistViews:PlaylistPanel DataContext="{Binding Playlist}" />
+      </Panel>
+      <Panel Grid.Column="1" Width="340" IsVisible="{Binding IsEffectsPanelVisible}">
+        <effectsViews:EffectsPanel DataContext="{Binding Effects}" />
+      </Panel>
+      <Panel Grid.Column="1" Width="340" IsVisible="{Binding IsInfoPanelVisible}">
+        <infoViews:MediaInfoPanel DataContext="{Binding MediaInfo}" />
       </Panel>
     </Grid>
 

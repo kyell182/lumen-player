@@ -1,31 +1,34 @@
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Lumen.Features.History;
+using Lumen.Features.Cast;
+using Lumen.Features.Effects;
 using Lumen.Features.Home;
+using Lumen.Features.MediaInfo;
 using Lumen.Features.Playback;
 using Lumen.Features.Playlist;
 using Lumen.Features.Settings;
 using Lumen.Features.Settings.Skins;
+using Lumen.Features.Tools;
 using Lumen.Features.Updates;
 using Lumen.Infrastructure;
 
 namespace Lumen.Features.Shell;
 
-/// <summary>Verbindt startscherm, speler en afspeellijst en regelt vensterbrede toestand.</summary>
+/// <summary>Het hoofdvenster: wat er zichtbaar is (startscherm, video, panelen) en de openen-acties.</summary>
 public sealed partial class MainViewModel : ObservableObject
 {
     private const string AppName = "Lumen";
-    private static readonly TimeSpan RestartThreshold = TimeSpan.FromSeconds(5);
 
-    private readonly IHistoryStore _history;
+    private readonly PlaybackSession _session;
+    private readonly MediaOpener _opener;
+    private readonly IDialogService _dialogs;
     private readonly ISettingsStore _settings;
     private readonly IFilePickerService _picker;
     private readonly ControlsAutoHider _autoHider;
     private bool _isPointerOverControls;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsPlaylistPanelVisible))]
+    [NotifyPropertyChangedFor(nameof(IsPlaylistPanelVisible), nameof(IsEffectsPanelVisible), nameof(IsInfoPanelVisible))]
     private bool _isHomeVisible = true;
 
     [ObservableProperty]
@@ -35,8 +38,8 @@ public sealed partial class MainViewModel : ObservableObject
     private bool _controlsVisible = true;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsPlaylistPanelVisible))]
-    private bool _isPlaylistOpen;
+    [NotifyPropertyChangedFor(nameof(IsPlaylistPanelVisible), nameof(IsEffectsPanelVisible), nameof(IsInfoPanelVisible))]
+    private SidePanel _activePanel;
 
     [ObservableProperty]
     private string _currentTitle = string.Empty;
@@ -44,25 +47,23 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _windowTitle = AppName;
 
-    public MainViewModel(
-        PlayerViewModel player,
-        PlaylistViewModel playlist,
-        HomeViewModel home,
-        UpdateViewModel update,
-        IHistoryStore history,
-        ISettingsStore settings,
-        ThemeService theme,
-        SkinService skins,
-        IFilePickerService picker)
+    public MainViewModel(MainViewModelParts parts, PlaybackSession session, MediaOpener opener, IDialogService dialogs,
+        ISettingsStore settings, IFilePickerService picker)
     {
-        Player = player;
-        Playlist = playlist;
-        Home = home;
-        Update = update;
-        _history = history;
+        Player = parts.Player;
+        Playlist = parts.Playlist;
+        Home = parts.Home;
+        Update = parts.Update;
+        Effects = parts.Effects;
+        MediaInfo = parts.MediaInfo;
+        Cast = parts.Cast;
+        Tools = parts.Tools;
+        Theme = parts.Theme;
+        Skins = parts.Skins;
+        _session = session;
+        _opener = opener;
+        _dialogs = dialogs;
         _settings = settings;
-        Theme = theme;
-        Skins = skins;
         _picker = picker;
         _autoHider = new ControlsAutoHider(TimeSpan.FromSeconds(2.5), HideControlsWhenIdle);
 
@@ -70,12 +71,13 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     public PlayerViewModel Player { get; }
-
     public PlaylistViewModel Playlist { get; }
-
     public HomeViewModel Home { get; }
-
     public UpdateViewModel Update { get; }
+    public EffectsViewModel Effects { get; }
+    public MediaInfoViewModel MediaInfo { get; }
+    public CastViewModel Cast { get; }
+    public ToolsViewModel Tools { get; }
 
     /// <summary>Licht of donker.</summary>
     public ThemeService Theme { get; }
@@ -83,11 +85,13 @@ public sealed partial class MainViewModel : ObservableObject
     /// <summary>Kleurthema (accentkleur).</summary>
     public SkinService Skins { get; }
 
-    public bool IsPlaylistPanelVisible => IsPlaylistOpen && !IsHomeVisible;
+    public bool IsPlaylistPanelVisible => IsPanelVisible(SidePanel.Playlist);
+    public bool IsEffectsPanelVisible => IsPanelVisible(SidePanel.Effects);
+    public bool IsInfoPanelVisible => IsPanelVisible(SidePanel.Info);
 
     // ----- Openen -----
 
-    public void OpenStartupFiles(IEnumerable<string> args) => PlayFiles(args.ToList());
+    public void OpenStartupFiles(IEnumerable<string> args) => _ = PlayAsync(args.ToList());
 
     public void HandleDroppedPaths(IReadOnlyList<string> paths)
     {
@@ -98,30 +102,43 @@ public sealed partial class MainViewModel : ObservableObject
             return;
         }
 
-        PlayFiles(paths);
+        _ = PlayAsync(paths);
     }
 
-    public void PlayFiles(IReadOnlyList<string> paths)
+    public async Task PlayAsync(IReadOnlyList<string> inputs)
     {
-        var files = MediaFileTypes.Expand(paths);
-        if (Playlist.Replace(files) is { } first)
-        {
-            PlayItem(first);
-        }
+        var entries = await _opener.ToEntriesAsync(inputs);
+        if (Playlist.Replace(entries) is { } first) await _session.PlayAsync(first);
+        else if (inputs.Count > 0) Tools.Notifier.Show("Hier zit niets in dat Lumen kan afspelen");
     }
 
     [RelayCommand]
     private async Task OpenFilesAsync()
     {
         var files = await _picker.PickMediaFilesAsync();
-        if (files.Count > 0) PlayFiles(files);
+        if (files.Count > 0) await PlayAsync(files);
     }
 
     [RelayCommand]
     private async Task OpenFolderAsync()
     {
-        if (await _picker.PickFolderAsync() is { } folder) PlayFiles(new[] { folder });
+        if (await _picker.PickFolderAsync() is { } folder) await PlayAsync(new[] { folder });
     }
+
+    [RelayCommand]
+    private async Task OpenPlaylistAsync()
+    {
+        if (await _picker.PickPlaylistAsync() is { } playlist) await PlayAsync(new[] { playlist });
+    }
+
+    [RelayCommand]
+    private async Task OpenStreamAsync()
+    {
+        if (await _dialogs.AskStreamUrlAsync() is { } url) await PlayAsync(new[] { url });
+    }
+
+    [RelayCommand]
+    private void ShowConverter() => _dialogs.ShowConverter();
 
     [RelayCommand]
     private async Task LoadSubtitleFileAsync()
@@ -129,31 +146,18 @@ public sealed partial class MainViewModel : ObservableObject
         if (await _picker.PickSubtitleAsync() is { } path) Player.LoadSubtitle(path);
     }
 
-    // ----- Navigatie in de afspeellijst -----
+    // ----- Afspeellijst -----
 
     [RelayCommand]
-    private void Next()
-    {
-        if (Playlist.NextItem is { } next) PlayItem(next);
-    }
+    private void Next() => _session.Next();
 
     [RelayCommand]
-    private void Previous()
-    {
-        if (Player.Position > RestartThreshold || Playlist.PreviousItem is null)
-        {
-            Player.SeekTo(0);
-            return;
-        }
-
-        PlayItem(Playlist.PreviousItem);
-    }
+    private void Previous() => _session.Previous();
 
     [RelayCommand]
     private void GoHome()
     {
-        SaveProgress();
-        Player.Stop();
+        _session.Stop();
         IsFullScreen = false;
         IsHomeVisible = true;
         _autoHider.Stop();
@@ -162,13 +166,19 @@ public sealed partial class MainViewModel : ObservableObject
         Home.Refresh();
     }
 
-    // ----- Venster -----
+    // ----- Venster en panelen -----
 
     [RelayCommand]
     private void ToggleFullScreen() => IsFullScreen = !IsFullScreen;
 
     [RelayCommand]
-    private void TogglePlaylist() => IsPlaylistOpen = !IsPlaylistOpen;
+    private void TogglePlaylist() => TogglePanel(SidePanel.Playlist);
+
+    [RelayCommand]
+    private void ToggleEffects() => TogglePanel(SidePanel.Effects);
+
+    [RelayCommand]
+    private void ToggleInfo() => TogglePanel(SidePanel.Info);
 
     public void ExitFullScreen() => IsFullScreen = false;
 
@@ -188,7 +198,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public void Shutdown()
     {
-        SaveProgress();
+        _session.SaveProgress();
         _settings.Current.Volume = Player.Volume;
         _settings.Save();
         _autoHider.Stop();
@@ -196,55 +206,35 @@ public sealed partial class MainViewModel : ObservableObject
 
     partial void OnIsFullScreenChanged(bool value) => ReportUserActivity();
 
+    partial void OnActivePanelChanged(SidePanel value)
+    {
+        if (value == SidePanel.Info) MediaInfo.Start();
+        else MediaInfo.Stop();
+    }
+
     // ----- Intern -----
 
     private void WireEvents()
     {
-        Player.MediaEnded += (_, _) => OnMediaEnded();
-        Player.PlaybackPaused += (_, _) => SaveProgress();
+        _session.ItemStarted += (_, title) =>
+        {
+            SetTitle(title);
+            IsHomeVisible = false;
+        };
+        Player.PlaybackStarted += (_, _) => Effects.ReapplyAfterMediaChange();
         Player.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(PlayerViewModel.IsPlaying)) ReportUserActivity();
         };
-        Playlist.ItemActivated += (_, item) => PlayItem(item);
         Home.OpenFilesRequested += (_, _) => OpenFilesCommand.Execute(null);
         Home.OpenFolderRequested += (_, _) => OpenFolderCommand.Execute(null);
-        Home.RecentRequested += (_, path) => PlayFiles(new[] { path });
+        Home.OpenStreamRequested += (_, _) => OpenStreamCommand.Execute(null);
+        Home.RecentRequested += (_, source) => _ = PlayAsync(new[] { source });
     }
 
-    private void PlayItem(PlaylistItemViewModel item)
-    {
-        SaveProgress();
-        Playlist.Current = item;
-        SetTitle(item.Title);
+    private void TogglePanel(SidePanel panel) => ActivePanel = ActivePanel == panel ? SidePanel.None : panel;
 
-        var startAt = ResumePolicy.StartPositionFor(_history.Find(item.Path));
-        IsHomeVisible = false;
-
-        // Eerst het videovlak laten verschijnen, anders opent VLC een eigen venster.
-        Dispatcher.UIThread.Post(() => Player.Open(item.Path, startAt), DispatcherPriority.Background);
-    }
-
-    private void OnMediaEnded()
-    {
-        SaveProgress();
-        if (Playlist.NextItem is { } next)
-        {
-            PlayItem(next);
-        }
-        else
-        {
-            ControlsVisible = true;
-        }
-    }
-
-    private void SaveProgress()
-    {
-        if (Player.CurrentPath is { } path && Player.DurationSeconds > 0)
-        {
-            _history.Record(path, Player.Position, Player.Duration);
-        }
-    }
+    private bool IsPanelVisible(SidePanel panel) => ActivePanel == panel && !IsHomeVisible;
 
     private void HideControlsWhenIdle()
     {

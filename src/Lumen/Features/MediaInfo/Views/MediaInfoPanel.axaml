@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:info="using:Lumen.Features.MediaInfo"
+             x:Class="Lumen.Features.MediaInfo.Views.MediaInfoPanel"
+             x:DataType="info:MediaInfoViewModel">
+
+  <Border Classes="side-panel">
+    <Grid RowDefinitions="Auto,*">
+      <TextBlock Classes="side-panel-title" Text="Mediainfo" />
+
+      <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding Sections}" Margin="16,4,16,20">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="info:InfoSection">
+              <StackPanel Spacing="6" Margin="0,8,0,8">
+                <TextBlock Classes="panel-heading" Text="{Binding Title}" />
+                <ItemsControl ItemsSource="{Binding Rows}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="info:InfoRow">
+                      <Grid ColumnDefinitions="120,*" Margin="0,2">
+                        <TextBlock Classes="secondary" FontSize="12" Text="{Binding Label}" />
+                        <SelectableTextBlock Grid.Column="1" FontSize="12" TextWrapping="Wrap" Text="{Binding Value}" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+  </Border>
+
+</UserControl>

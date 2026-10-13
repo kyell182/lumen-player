@@ -10,12 +10,24 @@
     <Grid RowDefinitions="Auto,*">
 
       <!-- Kop -->
-      <Grid ColumnDefinitions="*,Auto" Margin="18,16,10,10">
+      <Grid ColumnDefinitions="*,Auto" Margin="18,16,6,10">
         <StackPanel Spacing="2" VerticalAlignment="Center">
           <TextBlock Text="Afspeellijst" FontSize="16" FontWeight="SemiBold" />
           <TextBlock Classes="secondary" FontSize="12" Text="{Binding CountText}" />
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+          <Button Classes="icon small" Classes.active="{Binding IsShuffle}" Command="{Binding ToggleShuffleCommand}" ToolTip.Tip="Willekeurige volgorde">
+            <PathIcon Data="{StaticResource IconShuffle}" />
+          </Button>
+          <Button Classes="icon small" Classes.active="{Binding IsRepeatOn}" Command="{Binding CycleRepeatCommand}" ToolTip.Tip="{Binding RepeatLabel}">
+            <Panel>
+              <PathIcon Data="{StaticResource IconRepeat}" IsVisible="{Binding !IsRepeatOne}" />
+              <PathIcon Data="{StaticResource IconRepeatOnce}" IsVisible="{Binding IsRepeatOne}" />
+            </Panel>
+          </Button>
+          <Button Classes="icon small" Command="{Binding SaveCommand}" ToolTip.Tip="Afspeellijst opslaan (.m3u)">
+            <PathIcon Data="{StaticResource IconSave}" />
+          </Button>
           <Button Classes="icon small" Command="{Binding AddFilesCommand}" ToolTip.Tip="Bestanden toevoegen">
             <PathIcon Data="{StaticResource IconPlus}" />
           </Button>
@@ -45,6 +57,8 @@
                                   Foreground="{DynamicResource TextSecondaryBrush}" IsVisible="{Binding ShowVideoIcon}" />
                         <PathIcon Data="{StaticResource IconMusic}" Width="15" Height="15"
                                   Foreground="{DynamicResource TextSecondaryBrush}" IsVisible="{Binding ShowAudioIcon}" />
+                        <PathIcon Data="{StaticResource IconGlobe}" Width="15" Height="15"
+                                  Foreground="{DynamicResource TextSecondaryBrush}" IsVisible="{Binding ShowStreamIcon}" />
                       </Panel>
                     </Border>
                     <TextBlock Grid.Column="1" Classes="item-title" Text="{Binding Title}"

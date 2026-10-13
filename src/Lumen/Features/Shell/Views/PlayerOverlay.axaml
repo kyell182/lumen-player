@@ -10,6 +10,12 @@
   <Panel x:Name="Root" Background="#01000000">
     <playbackViews:SubtitleOverlay x:Name="SubtitleLayer" DataContext="{Binding Player.Subtitles}" />
     <shellViews:ControlBar Classes.faded="{Binding !ControlsVisible}" VerticalAlignment="Bottom" />
+
+    <!-- Korte meldingen bovenaan -->
+    <Border Classes="toast" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,20,0,0"
+            IsHitTestVisible="False" IsVisible="{Binding Tools.Notifier.IsVisible}">
+      <TextBlock Foreground="White" FontWeight="SemiBold" Text="{Binding Tools.Notifier.Message}" />
+    </Border>
   </Panel>
 
 </UserControl>

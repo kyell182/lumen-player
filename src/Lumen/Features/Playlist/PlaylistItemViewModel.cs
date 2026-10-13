@@ -6,23 +6,30 @@ namespace Lumen.Features.Playlist;
 public sealed partial class PlaylistItemViewModel : ObservableObject
 {
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ShowVideoIcon), nameof(ShowAudioIcon))]
+    [NotifyPropertyChangedFor(nameof(ShowVideoIcon), nameof(ShowAudioIcon), nameof(ShowStreamIcon))]
     private bool _isCurrent;
 
-    public PlaylistItemViewModel(string path)
+    public PlaylistItemViewModel(PlaylistEntry entry)
     {
-        Path = path;
-        Title = System.IO.Path.GetFileNameWithoutExtension(path);
-        Kind = MediaFileTypes.KindOf(path);
+        Entry = entry;
+        Kind = MediaFileTypes.KindOf(entry.Source);
+        IsStream = MediaSource.IsStream(entry.Source);
     }
 
-    public string Path { get; }
+    public PlaylistEntry Entry { get; }
 
-    public string Title { get; }
+    /// <summary>Bestandspad of netwerkadres.</summary>
+    public string Source => Entry.Source;
+
+    public string Title => Entry.DisplayTitle;
 
     public MediaKind Kind { get; }
 
-    public bool ShowVideoIcon => !IsCurrent && Kind != MediaKind.Audio;
+    public bool IsStream { get; }
 
-    public bool ShowAudioIcon => !IsCurrent && Kind == MediaKind.Audio;
+    public bool ShowStreamIcon => !IsCurrent && IsStream;
+
+    public bool ShowVideoIcon => !IsCurrent && !IsStream && Kind != MediaKind.Audio;
+
+    public bool ShowAudioIcon => !IsCurrent && !IsStream && Kind == MediaKind.Audio;
 }

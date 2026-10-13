@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Lumen.Features.Network.Views.StreamUrlWindow"
+        Title="Netwerkstream openen"
+        Width="540" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource AppBackgroundBrush}">
+
+  <StackPanel Margin="24" Spacing="14">
+    <TextBlock Text="Netwerkstream openen" FontSize="18" FontWeight="SemiBold" />
+    <TextBlock Classes="secondary" TextWrapping="Wrap"
+               Text="Plak een adres van een video, livestream, radiozender of IPTV-lijst (.m3u). Bijvoorbeeld https://…, rtsp://… of udp://@…" />
+
+    <TextBox x:Name="UrlBox" Watermark="https://voorbeeld.be/stream.m3u8" />
+    <TextBlock x:Name="ErrorText" Foreground="{DynamicResource AccentBrush}" IsVisible="False"
+               Text="Dat is geen geldig adres. Het moet beginnen met bv. https:// of rtsp://" />
+
+    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+      <Button x:Name="CancelButton" Classes="subtle compact" Content="Annuleren" />
+      <Button x:Name="PlayButton" Classes="accent compact" Content="Afspelen" IsDefault="True" />
+    </StackPanel>
+  </StackPanel>
+
+</Window>

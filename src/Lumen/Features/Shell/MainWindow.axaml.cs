@@ -31,6 +31,7 @@ public partial class MainWindow : Window
 
         ConfigureTitleBar();
         AppearanceButton.Click += (_, _) => AppearanceMenu.Show(AppearanceButton, viewModel.Theme, viewModel.Skins);
+        OpenButton.Click += (_, _) => OpenMenu.Show(OpenButton, viewModel);
         WireInput(this, viewModel);
         viewModel.PropertyChanged += OnViewModelPropertyChanged;
         Closing += (_, _) => viewModel.Shutdown();

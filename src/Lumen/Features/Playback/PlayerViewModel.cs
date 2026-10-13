@@ -14,6 +14,7 @@ public sealed partial class PlayerViewModel : ObservableObject
 
     private readonly IMediaPlayerService _player;
     private readonly PlaybackClock _clock = new();
+    private readonly AbRepeat _abRepeat = new();
     private bool _isUserSeeking;
 
     [ObservableProperty]
@@ -53,6 +54,9 @@ public sealed partial class PlayerViewModel : ObservableObject
     }
 
     public event EventHandler? MediaEnded;
+
+    /// <summary>Er begint een (nieuw) bestand te spelen; instellingen per bestand opnieuw toepassen.</summary>
+    public event EventHandler? PlaybackStarted;
     public event EventHandler? PlaybackPaused;
 
     public SubtitlesViewModel Subtitles { get; }
@@ -75,6 +79,7 @@ public sealed partial class PlayerViewModel : ObservableObject
         DurationSeconds = 0;
         PositionSeconds = startAt.TotalSeconds;
         _clock.Sync(startAt);
+        _abRepeat.Clear();
         Subtitles.PrepareFor(path);
         _player.Open(path, startAt);
     }
@@ -94,6 +99,11 @@ public sealed partial class PlayerViewModel : ObservableObject
     {
         if (IsPlaying) _player.Pause();
         else _player.Play();
+    }
+
+    public void Pause()
+    {
+        if (IsPlaying) _player.Pause();
     }
 
     [RelayCommand]
@@ -123,6 +133,17 @@ public sealed partial class PlayerViewModel : ObservableObject
         _isUserSeeking = false;
         SeekTo(PositionSeconds);
     }
+
+    /// <summary>Eén beeld verder (pauzeert eerst).</summary>
+    public void StepFrame() => _player.NextFrame();
+
+    /// <summary>Zet A, dan B, dan weer uit. Geeft een korte uitleg terug voor een melding.</summary>
+    public string MarkAbRepeat() => _abRepeat.Mark(Position) switch
+    {
+        AbRepeatState.StartSet => $"A-B herhalen: punt A op {TimeFormat.Format(_abRepeat.Start)}",
+        AbRepeatState.Looping => $"A-B herhalen: {TimeFormat.Format(_abRepeat.Start)} – {TimeFormat.Format(_abRepeat.End)}",
+        _ => "A-B herhalen uit",
+    };
 
     public void ChangeVolume(double delta) => Volume = Math.Clamp(Volume + delta, 0, 100);
 
@@ -169,6 +190,7 @@ public sealed partial class PlayerViewModel : ObservableObject
             case PlaybackState.Playing:
                 ApplyAudioSettings();
                 Subtitles.OnPlaybackStarted();
+                PlaybackStarted?.Invoke(this, EventArgs.Empty);
                 break;
             case PlaybackState.Paused:
                 PlaybackPaused?.Invoke(this, EventArgs.Empty);
@@ -183,6 +205,12 @@ public sealed partial class PlayerViewModel : ObservableObject
     private void OnEnginePositionChanged(TimeSpan position)
     {
         _clock.Sync(position);
+        if (_abRepeat.JumpTarget(position) is { } loopStart)
+        {
+            SeekTo(loopStart.TotalSeconds);
+            return;
+        }
+
         if (!_isUserSeeking) PositionSeconds = position.TotalSeconds;
     }
 

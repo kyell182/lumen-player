@@ -1,7 +1,7 @@
 using LibVLCSharp.Shared;
 using Lumen.Infrastructure;
 
-namespace Lumen.Features.Playback;
+namespace Lumen.Features.Playback.Engine;
 
 /// <summary>Schrijft waarschuwingen en fouten van VLC naar vlc.log (handig bij problemen met bestanden).</summary>
 public sealed class VlcLogWriter

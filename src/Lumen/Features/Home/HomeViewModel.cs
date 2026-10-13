@@ -3,6 +3,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Lumen.Features.History;
+using Lumen.Infrastructure;
 
 namespace Lumen.Features.Home;
 
@@ -22,6 +23,7 @@ public sealed partial class HomeViewModel : ObservableObject
 
     public event EventHandler? OpenFilesRequested;
     public event EventHandler? OpenFolderRequested;
+    public event EventHandler? OpenStreamRequested;
     public event EventHandler<string>? RecentRequested;
 
     public ObservableCollection<RecentItemViewModel> Recent { get; } = new();
@@ -31,7 +33,7 @@ public sealed partial class HomeViewModel : ObservableObject
     public void Refresh()
     {
         Recent.Clear();
-        foreach (var item in _history.GetAll().Where(i => File.Exists(i.Path)).Take(MaxCards))
+        foreach (var item in _history.GetAll().Where(i => MediaSource.IsAvailable(i.Path)).Take(MaxCards))
         {
             Recent.Add(new RecentItemViewModel(item));
         }
@@ -44,6 +46,9 @@ public sealed partial class HomeViewModel : ObservableObject
 
     [RelayCommand]
     private void OpenFolder() => OpenFolderRequested?.Invoke(this, EventArgs.Empty);
+
+    [RelayCommand]
+    private void OpenStream() => OpenStreamRequested?.Invoke(this, EventArgs.Empty);
 
     [RelayCommand]
     private void OpenRecent(RecentItemViewModel item) => RecentRequested?.Invoke(this, item.Path);

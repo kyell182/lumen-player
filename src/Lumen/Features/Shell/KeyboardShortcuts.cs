@@ -15,9 +15,8 @@ public sealed class KeyboardShortcuts
 
     public bool TryHandle(Key key, KeyModifiers modifiers)
     {
-        if (modifiers == KeyModifiers.Control && key == Key.O)
+        if (modifiers == KeyModifiers.Control && TryHandleControlKey(key))
         {
-            _vm.OpenFilesCommand.Execute(null);
             return true;
         }
 
@@ -35,7 +34,57 @@ public sealed class KeyboardShortcuts
         return true;
     }
 
-    private bool TryHandlePlaybackKey(Key key)
+    private bool TryHandleControlKey(Key key)
+    {
+        switch (key)
+        {
+            case Key.O:
+                _vm.OpenFilesCommand.Execute(null);
+                return true;
+            case Key.N:
+                _vm.OpenStreamCommand.Execute(null);
+                return true;
+            case Key.L:
+                _vm.OpenPlaylistCommand.Execute(null);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private bool TryHandlePlaybackKey(Key key) => TryHandleTransportKey(key) || TryHandleToolKey(key);
+
+    private bool TryHandleToolKey(Key key)
+    {
+        var tools = _vm.Tools;
+        switch (key)
+        {
+            case Key.S:
+                tools.TakeSnapshotCommand.Execute(null);
+                return true;
+            case Key.E:
+                tools.StepFrameCommand.Execute(null);
+                return true;
+            case Key.A:
+                tools.MarkAbRepeatCommand.Execute(null);
+                return true;
+            case Key.G:
+                _vm.Effects.Sync.NudgeSubtitles(-1);
+                tools.Notifier.Show("Ondertitels: " + _vm.Effects.Sync.SubtitleDelayText);
+                return true;
+            case Key.H:
+                _vm.Effects.Sync.NudgeSubtitles(+1);
+                tools.Notifier.Show("Ondertitels: " + _vm.Effects.Sync.SubtitleDelayText);
+                return true;
+            case Key.I:
+                _vm.ToggleInfoCommand.Execute(null);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private bool TryHandleTransportKey(Key key)
     {
         var player = _vm.Player;
         switch (key)

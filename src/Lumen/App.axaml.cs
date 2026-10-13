@@ -32,7 +32,7 @@ public partial class App : Application
         _services.Theme.ApplySaved();
         _services.Skins.ApplySaved();
 
-        var viewModel = _services.CreateMainViewModel();
+        var viewModel = ViewModelFactory.CreateMain(_services);
         window = new MainWindow(viewModel, _services.VideoOutput);
         desktop.MainWindow = window;
 

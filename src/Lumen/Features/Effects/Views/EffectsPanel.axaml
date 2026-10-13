@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:effects="using:Lumen.Features.Effects"
+             xmlns:views="using:Lumen.Features.Effects.Views"
+             x:Class="Lumen.Features.Effects.Views.EffectsPanel"
+             x:DataType="effects:EffectsViewModel">
+
+  <Border Classes="side-panel">
+    <Grid RowDefinitions="Auto,*">
+      <TextBlock Classes="side-panel-title" Text="Aanpassingen" />
+
+      <TabControl Grid.Row="1" Padding="0">
+        <TabItem Header="Beeld">
+          <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+            <views:VideoEffectsView DataContext="{Binding Video}" />
+          </ScrollViewer>
+        </TabItem>
+        <TabItem Header="Geluid">
+          <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+            <views:EqualizerView DataContext="{Binding Equalizer}" />
+          </ScrollViewer>
+        </TabItem>
+        <TabItem Header="Sync">
+          <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+            <views:SyncView DataContext="{Binding Sync}" />
+          </ScrollViewer>
+        </TabItem>
+      </TabControl>
+    </Grid>
+  </Border>
+
+</UserControl>

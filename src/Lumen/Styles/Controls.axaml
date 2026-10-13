@@ -56,6 +56,13 @@
     <Setter Property="Background" Value="Transparent" />
   </Style>
 
+  <Style Selector="Button.icon.active">
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+  </Style>
+  <Style Selector="Button.icon.active:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
   <Style Selector="Button.icon.small">
     <Setter Property="Width" Value="34" />
     <Setter Property="Height" Value="34" />
@@ -222,6 +229,53 @@
   </Style>
   <Style Selector="Slider.volume">
     <Setter Property="Margin" Value="0,0,6,0" />
+  </Style>
+
+  <!-- ===== Zijpanelen (aanpassingen, info) ===== -->
+  <Style Selector="Border.side-panel">
+    <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+    <Setter Property="BorderThickness" Value="1,0,0,0" />
+  </Style>
+  <Style Selector="TextBlock.side-panel-title">
+    <Setter Property="FontSize" Value="16" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Margin" Value="18,16,18,6" />
+  </Style>
+  <Style Selector="StackPanel.panel-body">
+    <Setter Property="Margin" Value="16,12,16,20" />
+    <Setter Property="Spacing" Value="14" />
+  </Style>
+  <Style Selector="StackPanel.setting">
+    <Setter Property="Spacing" Value="4" />
+  </Style>
+  <Style Selector="StackPanel.setting ComboBox">
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+  </Style>
+  <Style Selector="TextBlock.panel-heading">
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+    <Setter Property="Margin" Value="0,6,0,0" />
+  </Style>
+  <Style Selector="Slider.band">
+    <Setter Property="Orientation" Value="Vertical" />
+    <Setter Property="Height" Value="150" />
+    <Setter Property="Minimum" Value="-20" />
+    <Setter Property="Maximum" Value="20" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBlock.band-label">
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+
+  <!-- ===== Melding (toast) ===== -->
+  <Style Selector="Border.toast">
+    <Setter Property="Background" Value="#E6000000" />
+    <Setter Property="CornerRadius" Value="12" />
+    <Setter Property="Padding" Value="16,10" />
   </Style>
 
   <!-- ===== Tooltips ===== -->

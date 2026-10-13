@@ -9,7 +9,7 @@ public sealed class RecentItemViewModel
     public RecentItemViewModel(RecentItem item)
     {
         Path = item.Path;
-        Title = System.IO.Path.GetFileNameWithoutExtension(item.Path);
+        Title = MediaSource.DisplayName(item.Path);
         IsAudio = MediaFileTypes.KindOf(item.Path) == MediaKind.Audio;
         ProgressPercent = item.Progress * 100;
         HasProgress = item.Progress > 0.01 && !item.IsFinished;

@@ -7,7 +7,9 @@ namespace Lumen.Infrastructure;
 public sealed class FilePickerService : IFilePickerService
 {
     private static readonly FilePickerFileType AllMedia = Filter(
-        "Alle media", MediaFileTypes.VideoExtensions.Concat(MediaFileTypes.AudioExtensions));
+        "Alle media", MediaFileTypes.VideoExtensions.Concat(MediaFileTypes.AudioExtensions).Concat(MediaFileTypes.PlaylistExtensions));
+
+    private static readonly FilePickerFileType Playlists = Filter("Afspeellijsten", MediaFileTypes.PlaylistExtensions);
 
     private static readonly FilePickerFileType Video = Filter("Video", MediaFileTypes.VideoExtensions);
     private static readonly FilePickerFileType Audio = Filter("Muziek", MediaFileTypes.AudioExtensions);
@@ -56,6 +58,36 @@ public sealed class FilePickerService : IFilePickerService
         });
 
         return LocalPaths(files).FirstOrDefault();
+    }
+
+    public async Task<string?> PickPlaylistAsync()
+    {
+        if (Storage is not { } storage) return null;
+
+        var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Afspeellijst openen",
+            AllowMultiple = false,
+            FileTypeFilter = new[] { Playlists, FilePickerFileTypes.All },
+        });
+
+        return LocalPaths(files).FirstOrDefault();
+    }
+
+    public async Task<string?> PickSaveFileAsync(string title, string suggestedName, string typeName, string extension)
+    {
+        if (Storage is not { } storage) return null;
+
+        var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = title,
+            SuggestedFileName = suggestedName,
+            DefaultExtension = extension,
+            ShowOverwritePrompt = true,
+            FileTypeChoices = new[] { Filter(typeName, new[] { extension }) },
+        });
+
+        return file?.TryGetLocalPath();
     }
 
     private IStorageProvider? Storage => _topLevel()?.StorageProvider;

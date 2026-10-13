@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Lumen.Features.Cast.Views;
 using Lumen.Features.Playback.Views;
 
 namespace Lumen.Features.Shell.Views;
@@ -37,6 +38,14 @@ public partial class ControlBar : UserControl
         AudioButton.Click += (_, _) =>
         {
             if (ViewModel is { } vm) PlaybackMenus.ShowAudioTracks(AudioButton, vm.Player);
+        };
+        CastButton.Click += (_, _) =>
+        {
+            if (ViewModel is { } vm) CastMenu.Show(CastButton, vm.Cast);
+        };
+        MoreButton.Click += (_, _) =>
+        {
+            if (ViewModel is { } vm) MoreMenu.Show(MoreButton, vm);
         };
         SubtitleButton.Click += (_, _) =>
         {

@@ -20,6 +20,8 @@ public static class MediaFileTypes
         "mp3", "flac", "wav", "aac", "m4a", "ogg", "opus", "wma", "aiff",
     };
 
+    public static readonly IReadOnlyList<string> PlaylistExtensions = new[] { "m3u", "m3u8" };
+
     public static readonly IReadOnlyList<string> SubtitleExtensions = new[]
     {
         "srt", "ass", "ssa", "vtt", "sub",
@@ -43,7 +45,11 @@ public static class MediaFileTypes
         var result = new List<string>();
         foreach (var path in paths)
         {
-            if (Directory.Exists(path))
+            if (MediaSource.IsStream(path))
+            {
+                result.Add(path);
+            }
+            else if (Directory.Exists(path))
             {
                 result.AddRange(PlayableFilesIn(path));
             }

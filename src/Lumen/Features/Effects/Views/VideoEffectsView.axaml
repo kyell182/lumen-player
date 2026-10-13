@@ -1,0 +1,78 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:video="using:Lumen.Features.Effects.Video"
+             x:Class="Lumen.Features.Effects.Views.VideoEffectsView"
+             x:DataType="video:VideoEffectsViewModel">
+
+  <StackPanel Classes="panel-body">
+
+    <TextBlock Classes="panel-heading" Text="Kleur" />
+
+    <StackPanel Classes="setting">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="Helderheid" />
+        <TextBlock Grid.Column="1" Classes="secondary" Text="{Binding Brightness, StringFormat='{}{0:0.00}'}" />
+      </Grid>
+      <Slider Minimum="0" Maximum="2" Value="{Binding Brightness}" />
+    </StackPanel>
+
+    <StackPanel Classes="setting">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="Contrast" />
+        <TextBlock Grid.Column="1" Classes="secondary" Text="{Binding Contrast, StringFormat='{}{0:0.00}'}" />
+      </Grid>
+      <Slider Minimum="0" Maximum="2" Value="{Binding Contrast}" />
+    </StackPanel>
+
+    <StackPanel Classes="setting">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="Verzadiging" />
+        <TextBlock Grid.Column="1" Classes="secondary" Text="{Binding Saturation, StringFormat='{}{0:0.00}'}" />
+      </Grid>
+      <Slider Minimum="0" Maximum="3" Value="{Binding Saturation}" />
+    </StackPanel>
+
+    <StackPanel Classes="setting">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="Tint" />
+        <TextBlock Grid.Column="1" Classes="secondary" Text="{Binding Hue, StringFormat='{}{0:0}°'}" />
+      </Grid>
+      <Slider Minimum="-180" Maximum="180" Value="{Binding Hue}" />
+    </StackPanel>
+
+    <StackPanel Classes="setting">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="Gamma" />
+        <TextBlock Grid.Column="1" Classes="secondary" Text="{Binding Gamma, StringFormat='{}{0:0.00}'}" />
+      </Grid>
+      <Slider Minimum="0.1" Maximum="3" Value="{Binding Gamma}" />
+    </StackPanel>
+
+    <TextBlock Classes="panel-heading" Text="Beeld" />
+
+    <StackPanel Classes="setting">
+      <TextBlock Text="Beeldverhouding" />
+      <ComboBox ItemsSource="{Binding AspectRatios}" SelectedItem="{Binding AspectRatio}" />
+    </StackPanel>
+
+    <StackPanel Classes="setting">
+      <TextBlock Text="Bijsnijden" />
+      <ComboBox ItemsSource="{Binding Crops}" SelectedItem="{Binding Crop}" />
+    </StackPanel>
+
+    <StackPanel Classes="setting">
+      <TextBlock Text="Zoom" />
+      <ComboBox ItemsSource="{Binding Zooms}" SelectedItem="{Binding Zoom}" />
+    </StackPanel>
+
+    <StackPanel Classes="setting">
+      <TextBlock Text="Draaien en spiegelen" />
+      <ComboBox ItemsSource="{Binding Rotations}" SelectedItem="{Binding Rotation}" />
+    </StackPanel>
+
+    <ToggleSwitch Content="Deinterlacen (oude tv-opnames)" IsChecked="{Binding Deinterlace}" />
+
+    <Button Classes="subtle compact" Content="Alles terugzetten" Command="{Binding ResetCommand}" />
+  </StackPanel>
+
+</UserControl>

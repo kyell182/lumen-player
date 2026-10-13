@@ -37,6 +37,9 @@ public sealed partial class SubtitlesViewModel : ObservableObject
 
     public bool HasText => CurrentText.Length > 0;
 
+    /// <summary>Positief = ondertitels later tonen.</summary>
+    public TimeSpan Delay { get; set; }
+
     /// <summary>Zoekt ondertitelbestanden bij een nieuwe video. De keuze volgt zodra die speelt.</summary>
     public void PrepareFor(string videoPath)
     {
@@ -137,7 +140,7 @@ public sealed partial class SubtitlesViewModel : ObservableObject
     }
 
     private void RefreshText() =>
-        CurrentText = _activeFile?.Document.TextAt(_clock.Now) ?? string.Empty;
+        CurrentText = _activeFile?.Document.TextAt(_clock.Now - Delay) ?? string.Empty;
 
     private ExternalSubtitle? LoadFile(string path) =>
         SubtitleLoader.TryLoad(path) is { } document
