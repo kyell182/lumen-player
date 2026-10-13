@@ -28,7 +28,11 @@ jobs:
         run: choco install innosetup --no-progress -y
       - name: Installer bouwen
         shell: pwsh
-        run: ./installer/windows/build.ps1 -Version ${{ steps.version.outputs.value }}
+        run: ./installer/windows/build.ps1 -Version ${{ steps.version.outputs.value }} *>&1 | Tee-Object -FilePath build.log
+      - name: Fouten tonen
+        if: failure()
+        shell: pwsh
+        run: Get-Content build.log | Select-String -Pattern 'error|fout|mislukt' | Select-Object -First 30 | ForEach-Object { Write-Output "::error::$($_.Line)" }
       - uses: actions/upload-artifact@v4
         with:
           name: lumen-windows
@@ -47,7 +51,12 @@ jobs:
           if [ "$GITHUB_REF_TYPE" = "tag" ]; then v="${GITHUB_REF_NAME#v}"; else v="0.1.$GITHUB_RUN_NUMBER"; fi
           echo "value=$v" >> "$GITHUB_OUTPUT"
       - name: .deb bouwen
-        run: bash installer/linux/build-deb.sh ${{ steps.version.outputs.value }}
+        run: |
+          set -o pipefail
+          bash installer/linux/build-deb.sh ${{ steps.version.outputs.value }} 2>&1 | tee build.log
+      - name: Fouten tonen
+        if: failure()
+        run: grep -iE "error|fout" build.log | sort -u | head -30 | while IFS= read -r line; do echo "::error::$line"; done
       - uses: actions/upload-artifact@v4
         with:
           name: lumen-linux
