@@ -7,5 +7,5 @@ public partial class PlayerView : UserControl
 {
     public PlayerView() => InitializeComponent();
 
-    public void AttachVideo(IVlcVideoSource source) => VideoSurface.MediaPlayer = source.Surface;
+    public void AttachVideo(IVlcVideoSource source) => VideoSurface.Attach(source.Surface);
 }

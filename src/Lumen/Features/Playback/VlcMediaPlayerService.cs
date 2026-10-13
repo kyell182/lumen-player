@@ -13,17 +13,17 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService, IVlcVideoSource
     private static readonly string[] EngineOptions =
     {
         "--no-video-title-show",
-        "--audio-visual=visual",
-        "--effect-list=spectrum",
     };
 
     private readonly LibVLC _libVlc;
     private readonly MediaPlayer _player;
+    private readonly VlcLogWriter _log = new();
     private Media? _media;
 
     public VlcMediaPlayerService()
     {
         _libVlc = new LibVLC(false, EngineOptions);
+        _log.Attach(_libVlc);
         _player = new MediaPlayer(_libVlc)
         {
             EnableHardwareDecoding = true,

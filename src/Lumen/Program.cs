@@ -9,6 +9,7 @@ internal static class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        CrashLogger.Register();
         LinuxLibVlcResolver.Register();
         Core.Initialize();
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);

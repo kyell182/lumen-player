@@ -6,6 +6,10 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versie voor een release (bv. 1.0.1). Leeg = alleen testbuild.'
+        required: false
 
 permissions:
   contents: write
@@ -22,7 +26,7 @@ jobs:
         id: version
         shell: pwsh
         run: |
-          $v = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { "0.1.$env:GITHUB_RUN_NUMBER" }
+          $v = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } elseif ('${{ inputs.version }}') { '${{ inputs.version }}' } else { "0.1.$env:GITHUB_RUN_NUMBER" }
           "value=$v" >> $env:GITHUB_OUTPUT
       - name: Inno Setup installeren
         run: choco install innosetup --no-progress -y
@@ -48,7 +52,7 @@ jobs:
       - name: Versie bepalen
         id: version
         run: |
-          if [ "$GITHUB_REF_TYPE" = "tag" ]; then v="${GITHUB_REF_NAME#v}"; else v="0.1.$GITHUB_RUN_NUMBER"; fi
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then v="${GITHUB_REF_NAME#v}"; elif [ -n "${{ inputs.version }}" ]; then v="${{ inputs.version }}"; else v="0.1.$GITHUB_RUN_NUMBER"; fi
           echo "value=$v" >> "$GITHUB_OUTPUT"
       - name: .deb bouwen
         run: |
@@ -63,7 +67,7 @@ jobs:
           path: artifacts/installer/*.deb
 
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || inputs.version != ''
     needs: [windows, linux]
     runs-on: ubuntu-24.04
     steps:
@@ -73,5 +77,7 @@ jobs:
           merge-multiple: true
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('v{0}', inputs.version) }}
+          target_commitish: ${{ github.sha }}
           files: dist/*
           generate_release_notes: true

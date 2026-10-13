@@ -28,7 +28,6 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.*" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.*" />
     <PackageReference Include="LibVLCSharp" Version="3.*" />
-    <PackageReference Include="LibVLCSharp.Avalonia" Version="3.*" />
   </ItemGroup>
 
   <!-- Op Windows wordt de VLC-engine meegeleverd; op Linux gebruikt Lumen de systeem-libvlc. -->
