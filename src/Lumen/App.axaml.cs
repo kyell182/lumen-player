@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Lumen.Composition;
 using Lumen.Features.Shell;
+using Lumen.Infrastructure;
 
 namespace Lumen;
 
@@ -14,6 +15,8 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        CrashLogger.CatchUiThreadErrors();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             StartDesktop(desktop);

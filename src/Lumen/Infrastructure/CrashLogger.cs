@@ -22,7 +22,11 @@ public static class CrashLogger
             Write("Niet-afgehandelde taakfout", e.Exception);
             e.SetObserved();
         };
+    }
 
+    /// <summary>Pas aanroepen nadat Avalonia is opgestart, anders bestaat de UI-thread nog niet.</summary>
+    public static void CatchUiThreadErrors()
+    {
         Dispatcher.UIThread.UnhandledException += (_, e) =>
         {
             Write("Fout op de UI-thread (opgevangen)", e.Exception);
