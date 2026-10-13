@@ -5,13 +5,37 @@ Alles wat VLC kan afspelen, speelt Lumen ook af — maar dan in een interface di
 
 ## Functies
 
-- Speelt vrijwel elk formaat af (MP4, MKV, AVI, MOV, WEBM, MP3, FLAC, …) met hardwareversnelling
+**Afspelen**
+- Speelt vrijwel elk formaat af (MP4, MKV, AVI, MOV, WEBM, MP3, FLAC, …) met GPU-decodering, ook 4K
 - Startscherm met slepen-en-neerzetten en **"Verder kijken"**: Lumen onthoudt waar je stopte
-- Afspeellijst met volgende/vorige; mappen worden natuurlijk gesorteerd (aflevering 2 vóór 10)
-- Ondertitels worden automatisch gevonden (zelfde naam, `Film.nl.srt`, mappen `Subs/`), Nederlands krijgt voorrang; of sleep een `.srt` op de video
-- Afspeelsnelheid 0,5× – 2×
-- Volledig scherm waarbij de bediening zichzelf verbergt
-- Licht en donker thema plus 8 kleurskins (Koraal, Oceaan, Smaragd, Violet, Roos, Zonsondergang, IJs, Grafiet)
+- Afspeelsnelheid 0,5× – 2×, volgend beeld, A-B herhalen, schermafbeelding
+- Volledig scherm waarbij bediening en muisaanwijzer zichzelf verbergen
+
+**Beeld & geluid** (paneel *Aanpassingen*)
+- Helderheid, contrast, verzadiging, tint, gamma
+- Beeldverhouding, bijsnijden, zoom, draaien/spiegelen, deinterlacen
+- Equalizer met 10 banden en de voorinstellingen van VLC
+- Audio- en ondertitelvertraging
+
+**Ondertitels**
+- Automatisch gevonden (zelfde naam, `Film.nl.srt`, mappen `Subs/`), Nederlands krijgt voorrang
+- `.srt`, `.vtt` en `.ass` worden door Lumen zelf getekend; ingebouwde ondertitels (ook PGS) door VLC
+
+**Afspeellijst**
+- Herhalen (alles / één), shuffle, natuurlijk gesorteerde mappen
+- `.m3u` openen en opslaan, ook IPTV-lijsten van internet
+
+**Netwerk & casten**
+- Netwerkstreams openen: http(s), HLS, rtsp, udp, radio, sommige videosites
+- Casten naar Chromecast
+- Een stream opnemen naar Video's\Lumen
+
+**Converteren**
+- Naar MP4 (H.264), MKV (H.265), WebM, MP3, FLAC, OGG, of snel hermuxen zonder hercoderen
+
+**Overige**
+- Mediainfo (codecs, resolutie, bitrate, statistieken), slaaptimer, altijd bovenop
+- Licht en donker thema plus 8 kleurskins
 - Automatische updates
 
 ## Automatische updates
@@ -33,7 +57,12 @@ Een nieuwe versie uitbrengen: start de workflow **Installers bouwen** in het tab
 | N / P | Volgende / vorige |
 | + / − | Sneller / trager |
 | Home | Opnieuw beginnen |
-| Ctrl+O | Bestanden openen |
+| S | Schermafbeelding |
+| E | Volgend beeld |
+| A | A-B herhalen (A, B, uit) |
+| G / H | Ondertitels vroeger / later |
+| I | Mediainfo |
+| Ctrl+O / Ctrl+N / Ctrl+L | Bestanden / netwerkstream / afspeellijst openen |
 
 ## Installeren
 
@@ -86,8 +115,14 @@ src/Lumen/
 ├── Composition/        AppServices — compositieroot, maakt alles één keer aan
 ├── Infrastructure/     JSON-opslag, bestandsdialogen, mediatypes, natuurlijk sorteren
 ├── Features/
-│   ├── Playback/       IMediaPlayerService, VLC-implementatie, PlayerViewModel, videovlak, menu's
-│   ├── Playlist/       Wachtrij + paneel
+│   ├── Playback/       Afspelen: engine (VLC), videovlak, ondertitels, sporen, A-B herhalen
+│   ├── Effects/        Beeld & geluid: kleur, beeldverhouding, equalizer, synchronisatie
+│   ├── MediaInfo/      Codecs, resolutie en statistieken
+│   ├── Network/        Netwerkstreams openen en omzetten
+│   ├── Cast/           Chromecast zoeken en casten
+│   ├── Convert/        Converteren en streams opnemen
+│   ├── Tools/          Schermafbeelding, slaaptimer, meldingen
+│   ├── Playlist/       Wachtrij, herhalen/shuffle, .m3u lezen en schrijven
 │   ├── History/        Recente bestanden + hervat-regels
 │   ├── Home/           Startscherm met "Verder kijken"
 │   ├── Settings/       Instellingen + thema
@@ -104,7 +139,7 @@ Iconen gebaseerd op Material Design Icons (Apache 2.0). libVLC valt onder de LGP
 
 ## Bekende beperkingen
 
-- De video wordt door VLC in een native venster getekend; daarom staat de bediening onder de video en niet erover.
-  In volledig scherm haal je de bediening terug door de muis naar de onderrand te bewegen of een toets in te drukken.
-- Slepen-en-neerzetten werkt op het startscherm en de bedieningsbalk, niet rechtstreeks op het videobeeld.
-- Op Linux vereist de video-weergave X11 (onder Wayland via XWayland, standaard aanwezig).
+- Op Windows tekent VLC de video via de GPU in een native venster; de bediening ligt daarom in een apart, doorzichtig venster erboven.
+- Op Linux tekent Lumen de video zelf. Beeldverhouding, bijsnijden en zoom werken daar beperkt.
+- Videosites (zoals YouTube) werken alleen zolang de scripts in VLC dat ondersteunen.
+- Casten vereist een Chromecast op hetzelfde netwerk; VLC hercodeert indien nodig.
