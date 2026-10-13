@@ -1,0 +1,68 @@
+name: Installers bouwen
+
+# Bouwt bij elke tag (v1.0.0, v1.1.0, ...) de Windows-installer en het Linux-pakket
+# en zet ze in een GitHub Release. Handmatig starten kan via het tabblad "Actions".
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Versie bepalen
+        id: version
+        shell: pwsh
+        run: |
+          $v = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { "0.1.$env:GITHUB_RUN_NUMBER" }
+          "value=$v" >> $env:GITHUB_OUTPUT
+      - name: Inno Setup installeren
+        run: choco install innosetup --no-progress -y
+      - name: Installer bouwen
+        shell: pwsh
+        run: ./installer/windows/build.ps1 -Version ${{ steps.version.outputs.value }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lumen-windows
+          path: artifacts/installer/*.exe
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Versie bepalen
+        id: version
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then v="${GITHUB_REF_NAME#v}"; else v="0.1.$GITHUB_RUN_NUMBER"; fi
+          echo "value=$v" >> "$GITHUB_OUTPUT"
+      - name: .deb bouwen
+        run: bash installer/linux/build-deb.sh ${{ steps.version.outputs.value }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lumen-linux
+          path: artifacts/installer/*.deb
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

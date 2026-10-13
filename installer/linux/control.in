@@ -1,0 +1,13 @@
+Package: lumen
+Version: @VERSION@
+Section: video
+Priority: optional
+Architecture: amd64
+Installed-Size: @SIZE@
+Depends: libvlc5, vlc-plugin-base, libx11-6, libice6, libsm6, libfontconfig1
+Recommends: vlc-plugin-video-output
+Maintainer: Kyell <kyell182@users.noreply.github.com>
+Homepage: https://github.com/Kyell182/lumen-player
+Description: Moderne mediaspeler op basis van de VLC-engine
+ Lumen speelt vrijwel elk video- en audioformaat af in een strakke,
+ moderne interface met afspeellijst, ondertitels en "verder kijken".

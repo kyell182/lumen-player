@@ -1,0 +1,104 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:home="using:Lumen.Features.Home"
+             x:Class="Lumen.Features.Home.Views.HomeView"
+             x:DataType="home:HomeViewModel">
+
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+    <StackPanel MaxWidth="900" Margin="32,16,32,40" Spacing="40" VerticalAlignment="Center">
+
+      <!-- Drop-zone / hero -->
+      <Border CornerRadius="24" Padding="40,52"
+              Background="{DynamicResource SurfaceBrush}"
+              BorderBrush="{DynamicResource BorderSubtleBrush}"
+              BorderThickness="1">
+        <StackPanel Spacing="16" HorizontalAlignment="Center">
+          <Border Width="80" Height="80" CornerRadius="26" HorizontalAlignment="Center"
+                  Background="{StaticResource BrandGradientBrush}">
+            <PathIcon Data="{StaticResource IconPlay}" Width="36" Height="36" Foreground="White" Margin="4,0,0,0" />
+          </Border>
+
+          <TextBlock Text="Sleep een video of muziek hierheen"
+                     FontSize="26" FontWeight="SemiBold" Margin="0,8,0,0"
+                     HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
+          <TextBlock Classes="secondary"
+                     Text="MP4, MKV, AVI, MOV, WEBM, MP3, FLAC en nog veel meer"
+                     HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
+
+          <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center" Margin="0,12,0,0">
+            <Button Classes="accent" Command="{Binding OpenFilesCommand}">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <PathIcon Data="{StaticResource IconFolderOpen}" />
+                <TextBlock Text="Bestanden openen" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+            <Button Classes="subtle" Command="{Binding OpenFolderCommand}">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <PathIcon Data="{StaticResource IconFolder}" />
+                <TextBlock Text="Map openen" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
+
+          <TextBlock Classes="secondary" FontSize="12" Margin="0,10,0,0"
+                     HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
+                     Text="Spatie: afspelen/pauzeren  ·  ← →: 10 seconden  ·  F: volledig scherm  ·  Ctrl+O: openen" />
+        </StackPanel>
+      </Border>
+
+      <!-- Verder kijken -->
+      <StackPanel Spacing="14" IsVisible="{Binding HasRecent}">
+        <TextBlock Classes="section" Text="Verder kijken" />
+        <ItemsControl ItemsSource="{Binding Recent}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="home:RecentItemViewModel">
+              <Grid Classes="hover-host" Width="276" Margin="0,0,14,14">
+                <Button Classes="card"
+                        Command="{Binding $parent[ItemsControl].((home:HomeViewModel)DataContext).OpenRecentCommand}"
+                        CommandParameter="{Binding}"
+                        ToolTip.Tip="{Binding Path}">
+                  <StackPanel>
+                    <Border Height="128" CornerRadius="15,15,0,0" Background="{DynamicResource SurfaceRaisedBrush}">
+                      <Panel>
+                        <PathIcon Data="{StaticResource IconMovie}" Width="38" Height="38"
+                                  Foreground="{DynamicResource TextSecondaryBrush}" IsVisible="{Binding IsVideo}" />
+                        <PathIcon Data="{StaticResource IconMusic}" Width="38" Height="38"
+                                  Foreground="{DynamicResource TextSecondaryBrush}" IsVisible="{Binding IsAudio}" />
+                        <Border Width="44" Height="44" CornerRadius="22"
+                                HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="12"
+                                Background="{DynamicResource AccentBrush}">
+                          <PathIcon Data="{StaticResource IconPlay}" Width="18" Height="18"
+                                    Foreground="{DynamicResource OnAccentBrush}" Margin="2,0,0,0" />
+                        </Border>
+                      </Panel>
+                    </Border>
+                    <ProgressBar Classes="thin" Minimum="0" Maximum="100"
+                                 Value="{Binding ProgressPercent}" IsVisible="{Binding HasProgress}" />
+                    <StackPanel Margin="14,12,14,14" Spacing="3">
+                      <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Classes="secondary" FontSize="12" Text="{Binding Detail}" />
+                    </StackPanel>
+                  </StackPanel>
+                </Button>
+                <Button Classes="icon small overlay"
+                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"
+                        Command="{Binding $parent[ItemsControl].((home:HomeViewModel)DataContext).RemoveRecentCommand}"
+                        CommandParameter="{Binding}"
+                        ToolTip.Tip="Uit de lijst verwijderen">
+                  <PathIcon Data="{StaticResource IconClose}" />
+                </Button>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+    </StackPanel>
+  </ScrollViewer>
+
+</UserControl>

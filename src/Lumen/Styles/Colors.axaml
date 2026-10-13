@@ -1,0 +1,51 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Thema-afhankelijke kleuren -->
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0D0E12" />
+      <SolidColorBrush x:Key="SurfaceBrush" Color="#15171D" />
+      <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#1D2027" />
+      <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#262A33" />
+      <SolidColorBrush x:Key="SurfacePressedBrush" Color="#2F3440" />
+      <SolidColorBrush x:Key="BorderSubtleBrush" Color="#252831" />
+      <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F3F4F6" />
+      <SolidColorBrush x:Key="TextSecondaryBrush" Color="#9097A3" />
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="AppBackgroundBrush" Color="#F4F5F7" />
+      <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#EEF0F3" />
+      <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#E5E8EC" />
+      <SolidColorBrush x:Key="SurfacePressedBrush" Color="#D9DDE3" />
+      <SolidColorBrush x:Key="BorderSubtleBrush" Color="#E3E6EA" />
+      <SolidColorBrush x:Key="TextPrimaryBrush" Color="#15171C" />
+      <SolidColorBrush x:Key="TextSecondaryBrush" Color="#646B77" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+
+  <!-- Accent (koraal) -->
+  <Color x:Key="AccentColor">#FF6B4A</Color>
+  <SolidColorBrush x:Key="AccentBrush" Color="#FF6B4A" />
+  <SolidColorBrush x:Key="AccentHoverBrush" Color="#FF8466" />
+  <SolidColorBrush x:Key="AccentPressedBrush" Color="#E9563A" />
+  <SolidColorBrush x:Key="OnAccentBrush" Color="#FFFFFF" />
+  <SolidColorBrush x:Key="VideoBackgroundBrush" Color="#000000" />
+  <SolidColorBrush x:Key="OverlayButtonBrush" Color="#99000000" />
+
+  <LinearGradientBrush x:Key="BrandGradientBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+    <GradientStop Offset="0" Color="#FF8A4C" />
+    <GradientStop Offset="1" Color="#FF4D6D" />
+  </LinearGradientBrush>
+
+  <!-- Fluent-accent overschrijven zodat sliders, focus enz. meekleuren -->
+  <Color x:Key="SystemAccentColor">#FF6B4A</Color>
+  <Color x:Key="SystemAccentColorLight1">#FF8466</Color>
+  <Color x:Key="SystemAccentColorLight2">#FF9E85</Color>
+  <Color x:Key="SystemAccentColorLight3">#FFB8A6</Color>
+  <Color x:Key="SystemAccentColorDark1">#E9563A</Color>
+  <Color x:Key="SystemAccentColorDark2">#CC452C</Color>
+  <Color x:Key="SystemAccentColorDark3">#A8361F</Color>
+
+</ResourceDictionary>

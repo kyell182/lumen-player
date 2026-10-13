@@ -1,0 +1,86 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:shell="using:Lumen.Features.Shell"
+             x:Class="Lumen.Features.Shell.Views.ControlBar"
+             x:DataType="shell:MainViewModel">
+
+  <Border Background="{DynamicResource SurfaceBrush}"
+          BorderBrush="{DynamicResource BorderSubtleBrush}"
+          BorderThickness="0,1,0,0"
+          Padding="20,6,16,12">
+    <StackPanel Spacing="2">
+
+      <!-- Tijdlijn -->
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <TextBlock Classes="time" MinWidth="54" Text="{Binding Player.PositionText}" />
+        <Slider x:Name="SeekSlider" Grid.Column="1" Margin="10,0"
+                Minimum="0"
+                Maximum="{Binding Player.DurationSeconds}"
+                Value="{Binding Player.PositionSeconds}"
+                IsMoveToPointEnabled="True" />
+        <TextBlock Grid.Column="2" Classes="time" MinWidth="54" TextAlignment="Right"
+                   Text="{Binding Player.DurationText}" />
+      </Grid>
+
+      <!-- Knoppen -->
+      <Grid ColumnDefinitions="Auto,*,Auto">
+
+        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+          <Button Classes="icon" Command="{Binding PreviousCommand}" ToolTip.Tip="Vorige (P)">
+            <PathIcon Data="{StaticResource IconPrevious}" />
+          </Button>
+          <Button Classes="icon" Command="{Binding Player.SkipBackwardCommand}" ToolTip.Tip="10 seconden terug (←)">
+            <PathIcon Data="{StaticResource IconRewind}" />
+          </Button>
+          <Button Classes="play" Margin="4,0" Command="{Binding Player.TogglePlayPauseCommand}" ToolTip.Tip="Afspelen / pauzeren (spatie)">
+            <Panel>
+              <PathIcon Data="{StaticResource IconPlay}" Margin="3,0,0,0" IsVisible="{Binding !Player.IsPlaying}" />
+              <PathIcon Data="{StaticResource IconPause}" IsVisible="{Binding Player.IsPlaying}" />
+            </Panel>
+          </Button>
+          <Button Classes="icon" Command="{Binding Player.SkipForwardCommand}" ToolTip.Tip="10 seconden vooruit (→)">
+            <PathIcon Data="{StaticResource IconForward}" />
+          </Button>
+          <Button Classes="icon" Command="{Binding NextCommand}" ToolTip.Tip="Volgende (N)">
+            <PathIcon Data="{StaticResource IconNext}" />
+          </Button>
+        </StackPanel>
+
+        <TextBlock Grid.Column="1" Margin="18,0" VerticalAlignment="Center"
+                   FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
+                   Text="{Binding CurrentTitle}" />
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+          <Button x:Name="SpeedButton" Classes="icon text" Content="{Binding Player.RateText}" ToolTip.Tip="Afspeelsnelheid (+ / −)" />
+          <Button x:Name="AudioButton" Classes="icon" ToolTip.Tip="Audiospoor">
+            <PathIcon Data="{StaticResource IconAudioTrack}" />
+          </Button>
+          <Button x:Name="SubtitleButton" Classes="icon" ToolTip.Tip="Ondertitels">
+            <PathIcon Data="{StaticResource IconSubtitles}" />
+          </Button>
+          <Button Classes="icon" Command="{Binding Player.ToggleMuteCommand}" ToolTip.Tip="Dempen (M)">
+            <Panel>
+              <PathIcon Data="{StaticResource IconVolume}" IsVisible="{Binding !Player.ShowMutedIcon}" />
+              <PathIcon Data="{StaticResource IconVolumeOff}" IsVisible="{Binding Player.ShowMutedIcon}" />
+            </Panel>
+          </Button>
+          <Slider Classes="volume" Width="96" VerticalAlignment="Center"
+                  Minimum="0" Maximum="100"
+                  Value="{Binding Player.Volume}"
+                  ToolTip.Tip="Volume (↑ / ↓)" />
+          <Button Classes="icon" Command="{Binding TogglePlaylistCommand}" ToolTip.Tip="Afspeellijst">
+            <PathIcon Data="{StaticResource IconPlaylist}" />
+          </Button>
+          <Button Classes="icon" Command="{Binding ToggleFullScreenCommand}" ToolTip.Tip="Volledig scherm (F)">
+            <Panel>
+              <PathIcon Data="{StaticResource IconFullScreen}" IsVisible="{Binding !IsFullScreen}" />
+              <PathIcon Data="{StaticResource IconFullScreenExit}" IsVisible="{Binding IsFullScreen}" />
+            </Panel>
+          </Button>
+        </StackPanel>
+
+      </Grid>
+    </StackPanel>
+  </Border>
+
+</UserControl>

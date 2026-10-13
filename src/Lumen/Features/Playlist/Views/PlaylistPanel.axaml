@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:pl="using:Lumen.Features.Playlist"
+             x:Class="Lumen.Features.Playlist.Views.PlaylistPanel"
+             x:DataType="pl:PlaylistViewModel">
+
+  <Border Background="{DynamicResource SurfaceBrush}"
+          BorderBrush="{DynamicResource BorderSubtleBrush}"
+          BorderThickness="1,0,0,0">
+    <Grid RowDefinitions="Auto,*">
+
+      <!-- Kop -->
+      <Grid ColumnDefinitions="*,Auto" Margin="18,16,10,10">
+        <StackPanel Spacing="2" VerticalAlignment="Center">
+          <TextBlock Text="Afspeellijst" FontSize="16" FontWeight="SemiBold" />
+          <TextBlock Classes="secondary" FontSize="12" Text="{Binding CountText}" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+          <Button Classes="icon small" Command="{Binding AddFilesCommand}" ToolTip.Tip="Bestanden toevoegen">
+            <PathIcon Data="{StaticResource IconPlus}" />
+          </Button>
+          <Button Classes="icon small" Command="{Binding ClearCommand}" ToolTip.Tip="Lijst leegmaken">
+            <PathIcon Data="{StaticResource IconTrash}" />
+          </Button>
+        </StackPanel>
+      </Grid>
+
+      <!-- Items -->
+      <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding Items}" Margin="8,0,8,12">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="pl:PlaylistItemViewModel">
+              <Grid Classes="hover-host" Margin="0,1">
+                <Button Classes="list-item"
+                        Classes.current="{Binding IsCurrent}"
+                        Command="{Binding $parent[ItemsControl].((pl:PlaylistViewModel)DataContext).PlayCommand}"
+                        CommandParameter="{Binding}">
+                  <Grid ColumnDefinitions="Auto,*" Margin="0,0,34,0">
+                    <Border Width="34" Height="34" CornerRadius="8" Margin="0,0,12,0"
+                            Background="{DynamicResource SurfaceRaisedBrush}">
+                      <Panel>
+                        <PathIcon Data="{StaticResource IconPlay}" Width="14" Height="14"
+                                  Foreground="{DynamicResource AccentBrush}" IsVisible="{Binding IsCurrent}" />
+                        <PathIcon Data="{StaticResource IconMovie}" Width="15" Height="15"
+                                  Foreground="{DynamicResource TextSecondaryBrush}" IsVisible="{Binding ShowVideoIcon}" />
+                        <PathIcon Data="{StaticResource IconMusic}" Width="15" Height="15"
+                                  Foreground="{DynamicResource TextSecondaryBrush}" IsVisible="{Binding ShowAudioIcon}" />
+                      </Panel>
+                    </Border>
+                    <TextBlock Grid.Column="1" Classes="item-title" Text="{Binding Title}"
+                               TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                  </Grid>
+                </Button>
+                <Button Classes="icon small overlay"
+                        HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,6,0"
+                        Width="28" Height="28"
+                        Command="{Binding $parent[ItemsControl].((pl:PlaylistViewModel)DataContext).RemoveCommand}"
+                        CommandParameter="{Binding}"
+                        ToolTip.Tip="Verwijderen">
+                  <PathIcon Data="{StaticResource IconClose}" Width="13" Height="13" />
+                </Button>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+    </Grid>
+  </Border>
+
+</UserControl>

@@ -1,0 +1,75 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="using:Lumen.Features.Shell"
+        xmlns:shellViews="using:Lumen.Features.Shell.Views"
+        xmlns:homeViews="using:Lumen.Features.Home.Views"
+        xmlns:playbackViews="using:Lumen.Features.Playback.Views"
+        xmlns:playlistViews="using:Lumen.Features.Playlist.Views"
+        x:Class="Lumen.Features.Shell.MainWindow"
+        x:DataType="shell:MainViewModel"
+        Title="{Binding WindowTitle}"
+        Icon="avares://Lumen/Assets/lumen.ico"
+        Width="1200" Height="760"
+        MinWidth="780" MinHeight="480"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource AppBackgroundBrush}"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        ExtendClientAreaTitleBarHeightHint="44"
+        DragDrop.AllowDrop="True">
+
+  <Grid RowDefinitions="Auto,*,Auto">
+
+    <!-- Titelbalk -->
+    <Border x:Name="TitleBar" Grid.Row="0" Height="44" Background="Transparent"
+            IsVisible="{Binding !IsFullScreen}">
+      <Grid x:Name="TitleBarContent" ColumnDefinitions="Auto,*,Auto" Margin="14,0,8,0">
+        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center" IsHitTestVisible="False">
+          <Border Width="24" Height="24" CornerRadius="8" Background="{StaticResource BrandGradientBrush}">
+            <PathIcon Data="{StaticResource IconPlay}" Width="11" Height="11" Foreground="White" Margin="1,0,0,0" />
+          </Border>
+          <TextBlock Text="Lumen" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <TextBlock Grid.Column="1" Classes="secondary" FontSize="13" Margin="24,0"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   TextTrimming="CharacterEllipsis" IsHitTestVisible="False"
+                   Text="{Binding CurrentTitle}" />
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+          <Button Classes="icon small" Command="{Binding GoHomeCommand}"
+                  IsVisible="{Binding !IsHomeVisible}" ToolTip.Tip="Startscherm">
+            <PathIcon Data="{StaticResource IconHome}" />
+          </Button>
+          <Button Classes="icon small" Command="{Binding OpenFilesCommand}" ToolTip.Tip="Openen (Ctrl+O)">
+            <PathIcon Data="{StaticResource IconFolderOpen}" />
+          </Button>
+          <Button Classes="icon small" Command="{Binding ToggleThemeCommand}" ToolTip.Tip="Licht / donker thema">
+            <PathIcon Data="{StaticResource IconTheme}" />
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Inhoud -->
+    <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+      <Panel IsVisible="{Binding IsHomeVisible}">
+        <homeViews:HomeView DataContext="{Binding Home}" />
+      </Panel>
+      <Panel IsVisible="{Binding !IsHomeVisible}">
+        <playbackViews:PlayerView x:Name="PlayerSurface" />
+      </Panel>
+      <Panel Grid.Column="1" Width="320" IsVisible="{Binding IsPlaylistPanelVisible}">
+        <playlistViews:PlaylistPanel DataContext="{Binding Playlist}" />
+      </Panel>
+    </Grid>
+
+    <!-- Bediening -->
+    <shellViews:ControlBar Grid.Row="2" IsVisible="{Binding IsControlBarVisible}" />
+
+    <!-- Onzichtbare strook om de bediening terug te halen in volledig scherm -->
+    <Border Grid.Row="2" Height="10" Background="Transparent"
+            IsVisible="{Binding IsRevealStripVisible}" />
+
+  </Grid>
+</Window>

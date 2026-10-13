@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Lumen
+GenericName=Mediaspeler
+Comment=Moderne mediaspeler op basis van de VLC-engine
+Exec=lumen %F
+Icon=lumen
+Terminal=false
+Categories=AudioVideo;Player;Video;Audio;
+Keywords=video;muziek;film;speler;vlc;
+MimeType=video/mp4;video/x-matroska;video/x-msvideo;video/quicktime;video/webm;video/x-ms-wmv;video/x-m4v;video/x-flv;video/mpeg;video/mp2t;video/3gpp;video/ogg;audio/mpeg;audio/flac;audio/x-wav;audio/aac;audio/mp4;audio/ogg;audio/opus;audio/x-ms-wma;audio/x-aiff;
+StartupWMClass=Lumen
