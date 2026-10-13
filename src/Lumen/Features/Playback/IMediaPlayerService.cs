@@ -27,5 +27,5 @@ public interface IMediaPlayerService : IDisposable
     int CurrentSubtitleTrack { get; }
     void SelectAudioTrack(int id);
     void SelectSubtitleTrack(int id);
-    void LoadSubtitleFile(string path);
+    void LoadSubtitleFile(string path, bool select);
 }

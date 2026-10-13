@@ -1,6 +1,7 @@
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Lumen.Features.Playback.Subtitles;
 
 namespace Lumen.Features.Playback;
 
@@ -13,6 +14,7 @@ public sealed partial class PlayerViewModel : ObservableObject
 
     private readonly IMediaPlayerService _player;
     private bool _isUserSeeking;
+    private IReadOnlyList<string> _pendingSubtitles = Array.Empty<string>();
 
     [ObservableProperty]
     private bool _isPlaying;
@@ -69,6 +71,7 @@ public sealed partial class PlayerViewModel : ObservableObject
         CurrentPath = path;
         DurationSeconds = 0;
         PositionSeconds = startAt.TotalSeconds;
+        _pendingSubtitles = SubtitleFinder.FindFor(path);
         _player.Open(path, startAt);
     }
 
@@ -137,7 +140,7 @@ public sealed partial class PlayerViewModel : ObservableObject
 
     public void SelectSubtitleTrack(int id) => _player.SelectSubtitleTrack(id);
 
-    public void LoadSubtitle(string path) => _player.LoadSubtitleFile(path);
+    public void LoadSubtitle(string path) => _player.LoadSubtitleFile(path, select: true);
 
     partial void OnVolumeChanged(double value)
     {
@@ -159,6 +162,7 @@ public sealed partial class PlayerViewModel : ObservableObject
         {
             case PlaybackState.Playing:
                 ApplyAudioSettings();
+                LoadPendingSubtitles();
                 break;
             case PlaybackState.Paused:
                 PlaybackPaused?.Invoke(this, EventArgs.Empty);
@@ -173,6 +177,18 @@ public sealed partial class PlayerViewModel : ObservableObject
     private void OnEnginePositionChanged(TimeSpan position)
     {
         if (!_isUserSeeking) PositionSeconds = position.TotalSeconds;
+    }
+
+    // Ondertitels kunnen pas toegevoegd worden als het bestand speelt. De beste wordt meteen getoond.
+    private void LoadPendingSubtitles()
+    {
+        var subtitles = _pendingSubtitles;
+        _pendingSubtitles = Array.Empty<string>();
+
+        for (var i = 0; i < subtitles.Count; i++)
+        {
+            _player.LoadSubtitleFile(subtitles[i], select: i == 0);
+        }
     }
 
     // Volume en mute worden pas betrouwbaar toegepast zodra de audio-uitvoer bestaat.

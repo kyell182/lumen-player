@@ -14,6 +14,7 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService
     private static readonly string[] EngineOptions =
     {
         "--no-video-title-show",
+        "--no-sub-autodetect-file", // Lumen zoekt ondertitels zelf (SubtitleFinder)
     };
 
     private readonly LibVLC _libVlc;
@@ -114,8 +115,8 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService
 
     public void SelectSubtitleTrack(int id) => _player.SetSpu(id);
 
-    public void LoadSubtitleFile(string path) =>
-        _player.AddSlave(MediaSlaveType.Subtitle, new Uri(Path.GetFullPath(path)).AbsoluteUri, true);
+    public void LoadSubtitleFile(string path, bool select) =>
+        _player.AddSlave(MediaSlaveType.Subtitle, new Uri(Path.GetFullPath(path)).AbsoluteUri, select);
 
     public void Dispose()
     {

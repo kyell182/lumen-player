@@ -8,7 +8,7 @@ Alles wat VLC kan afspelen, speelt Lumen ook af — maar dan in een interface di
 - Speelt vrijwel elk formaat af (MP4, MKV, AVI, MOV, WEBM, MP3, FLAC, …) met hardwareversnelling
 - Startscherm met slepen-en-neerzetten en **"Verder kijken"**: Lumen onthoudt waar je stopte
 - Afspeellijst met volgende/vorige; mappen worden natuurlijk gesorteerd (aflevering 2 vóór 10)
-- Audiosporen, ingebouwde ondertitels en externe ondertitelbestanden (of sleep een `.srt` op de video)
+- Ondertitels worden automatisch gevonden (zelfde naam, `Film.nl.srt`, mappen `Subs/`), Nederlands krijgt voorrang; of sleep een `.srt` op de video
 - Afspeelsnelheid 0,5× – 2×
 - Volledig scherm waarbij de bediening zichzelf verbergt
 - Licht en donker thema, volume en thema worden onthouden
