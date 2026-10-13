@@ -6,6 +6,7 @@ using Lumen.Features.Home;
 using Lumen.Features.Playback;
 using Lumen.Features.Playlist;
 using Lumen.Features.Settings;
+using Lumen.Features.Updates;
 using Lumen.Infrastructure;
 
 namespace Lumen.Features.Shell;
@@ -48,6 +49,7 @@ public sealed partial class MainViewModel : ObservableObject
         PlayerViewModel player,
         PlaylistViewModel playlist,
         HomeViewModel home,
+        UpdateViewModel update,
         IHistoryStore history,
         ISettingsStore settings,
         ThemeService theme,
@@ -56,6 +58,7 @@ public sealed partial class MainViewModel : ObservableObject
         Player = player;
         Playlist = playlist;
         Home = home;
+        Update = update;
         _history = history;
         _settings = settings;
         _theme = theme;
@@ -70,6 +73,8 @@ public sealed partial class MainViewModel : ObservableObject
     public PlaylistViewModel Playlist { get; }
 
     public HomeViewModel Home { get; }
+
+    public UpdateViewModel Update { get; }
 
     public bool IsControlBarVisible => !IsHomeVisible && (ControlsVisible || !IsFullScreen);
 

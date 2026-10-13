@@ -108,3 +108,5 @@ Root: HKA; Subkey: "Software\Lumen\Capabilities\FileAssociations"; ValueType: st
 
 [Run]
 Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
+; Na een automatische update (stille installatie) Lumen opnieuw starten
+Filename: "{app}\{#AppExe}"; Flags: nowait; Check: WizardSilent

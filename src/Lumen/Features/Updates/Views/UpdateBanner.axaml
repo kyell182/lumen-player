@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:updates="using:Lumen.Features.Updates"
+             x:Class="Lumen.Features.Updates.Views.UpdateBanner"
+             x:DataType="updates:UpdateViewModel">
+
+  <Border IsVisible="{Binding IsVisible}"
+          Margin="12,0,12,10" Padding="12,10" CornerRadius="14"
+          Background="{DynamicResource SurfaceBrush}"
+          BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1">
+    <Grid ColumnDefinitions="Auto,*,Auto">
+
+      <Border Width="32" Height="32" CornerRadius="10" Margin="0,0,12,0" VerticalAlignment="Center"
+              Background="{StaticResource BrandGradientBrush}">
+        <PathIcon Data="{StaticResource IconDownload}" Width="16" Height="16" Foreground="White" />
+      </Border>
+
+      <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Center">
+        <TextBlock Text="{Binding Message}" FontWeight="SemiBold" TextWrapping="Wrap" />
+        <ProgressBar Classes="thin" CornerRadius="2" Minimum="0" Maximum="100"
+                     Value="{Binding ProgressPercent}" IsVisible="{Binding IsDownloading}" />
+      </StackPanel>
+
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" Margin="12,0,0,0" VerticalAlignment="Center">
+        <Button Classes="accent compact" Content="Nu bijwerken"
+                Command="{Binding InstallCommand}" IsVisible="{Binding IsAvailable}" />
+        <Button Classes="subtle compact" Content="Downloadpagina"
+                Command="{Binding OpenReleasePageCommand}" IsVisible="{Binding IsFailed}" />
+        <Button Classes="icon small" ToolTip.Tip="Later"
+                Command="{Binding DismissCommand}" IsVisible="{Binding CanDismiss}">
+          <PathIcon Data="{StaticResource IconClose}" />
+        </Button>
+      </StackPanel>
+
+    </Grid>
+  </Border>
+
+</UserControl>

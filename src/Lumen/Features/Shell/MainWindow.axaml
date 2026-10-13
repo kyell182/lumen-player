@@ -5,6 +5,7 @@
         xmlns:homeViews="using:Lumen.Features.Home.Views"
         xmlns:playbackViews="using:Lumen.Features.Playback.Views"
         xmlns:playlistViews="using:Lumen.Features.Playlist.Views"
+        xmlns:updateViews="using:Lumen.Features.Updates.Views"
         x:Class="Lumen.Features.Shell.MainWindow"
         x:DataType="shell:MainViewModel"
         Title="{Binding WindowTitle}"
@@ -18,7 +19,7 @@
         ExtendClientAreaTitleBarHeightHint="44"
         DragDrop.AllowDrop="True">
 
-  <Grid RowDefinitions="Auto,*,Auto">
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
 
     <!-- Titelbalk -->
     <Border x:Name="TitleBar" Grid.Row="0" Height="44" Background="Transparent"
@@ -51,8 +52,13 @@
       </Grid>
     </Border>
 
+    <!-- Updatemelding -->
+    <Panel Grid.Row="1" IsVisible="{Binding !IsFullScreen}">
+      <updateViews:UpdateBanner DataContext="{Binding Update}" />
+    </Panel>
+
     <!-- Inhoud -->
-    <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
       <Panel IsVisible="{Binding IsHomeVisible}">
         <homeViews:HomeView DataContext="{Binding Home}" />
       </Panel>
@@ -65,10 +71,10 @@
     </Grid>
 
     <!-- Bediening -->
-    <shellViews:ControlBar Grid.Row="2" IsVisible="{Binding IsControlBarVisible}" />
+    <shellViews:ControlBar Grid.Row="3" IsVisible="{Binding IsControlBarVisible}" />
 
     <!-- Onzichtbare strook om de bediening terug te halen in volledig scherm -->
-    <Border Grid.Row="2" Height="10" Background="Transparent"
+    <Border Grid.Row="3" Height="10" Background="Transparent"
             IsVisible="{Binding IsRevealStripVisible}" />
 
   </Grid>

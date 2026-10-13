@@ -14,6 +14,13 @@ Alles wat VLC kan afspelen, speelt Lumen ook af — maar dan in een interface di
 - Licht en donker thema, volume en thema worden onthouden
 - Visualisatie bij muziekbestanden
 
+## Automatische updates
+
+Lumen kijkt bij het opstarten of er op GitHub een nieuwere release is. Zo ja, dan verschijnt bovenaan een melding met **Nu bijwerken**:
+Lumen downloadt de installer, installeert die (Windows vraagt om toestemming, Linux om je wachtwoord) en start daarna opnieuw op.
+
+Een nieuwe versie uitbrengen: start de workflow **Installers bouwen** in het tabblad Actions met een versienummer (bv. `1.0.4`), of push een tag `v1.0.4`.
+
 ## Sneltoetsen
 
 | Toets | Actie |

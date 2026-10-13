@@ -160,6 +160,12 @@
     <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
   </Style>
 
+  <Style Selector="Button.compact">
+    <Setter Property="Padding" Value="14,7" />
+    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="FontSize" Value="13" />
+  </Style>
+
   <!-- ===== Kaart (verder kijken) ===== -->
   <Style Selector="Button.card">
     <Setter Property="Padding" Value="0" />

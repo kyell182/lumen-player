@@ -36,7 +36,11 @@ public partial class App : Application
         desktop.MainWindow = window;
 
         var startupArgs = desktop.Args ?? Array.Empty<string>();
-        window.Opened += (_, _) => viewModel.OpenStartupFiles(startupArgs);
+        window.Opened += (_, _) =>
+        {
+            viewModel.OpenStartupFiles(startupArgs);
+            _ = viewModel.Update.CheckOnStartupAsync();
+        };
         desktop.Exit += (_, _) => _services.Dispose();
     }
 }
