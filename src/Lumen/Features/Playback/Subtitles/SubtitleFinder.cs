@@ -32,7 +32,7 @@ public static class SubtitleFinder
             .Select(c => (c.Path, Match: Classify(c.Path, c.InOwnFolder, videoName, isOnlyVideo)))
             .Where(c => c.Match != Match.None)
             .OrderBy(c => (int)c.Match)
-            .ThenBy(c => SubtitleLanguage.PreferenceRank(c.Path))
+            .ThenBy(c => SubtitleLanguage.PreferenceRank(c.Path, videoName))
             .ThenBy(c => Path.GetFileName(c.Path), NaturalStringComparer.Instance)
             .Select(c => c.Path)
             .Distinct(StringComparer.OrdinalIgnoreCase)

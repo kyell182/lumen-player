@@ -13,8 +13,8 @@ public sealed partial class PlayerViewModel : ObservableObject
     private const double SkipSeconds = 10;
 
     private readonly IMediaPlayerService _player;
+    private readonly PlaybackClock _clock = new();
     private bool _isUserSeeking;
-    private IReadOnlyList<string> _pendingSubtitles = Array.Empty<string>();
 
     [ObservableProperty]
     private bool _isPlaying;
@@ -44,6 +44,7 @@ public sealed partial class PlayerViewModel : ObservableObject
     public PlayerViewModel(IMediaPlayerService player, double initialVolume)
     {
         _player = player;
+        Subtitles = new SubtitlesViewModel(player, _clock);
         Volume = Math.Clamp(initialVolume, 0, 100);
 
         _player.StateChanged += (_, state) => Dispatcher.UIThread.Post(() => OnEngineStateChanged(state));
@@ -53,6 +54,8 @@ public sealed partial class PlayerViewModel : ObservableObject
 
     public event EventHandler? MediaEnded;
     public event EventHandler? PlaybackPaused;
+
+    public SubtitlesViewModel Subtitles { get; }
 
     public string? CurrentPath { get; private set; }
 
@@ -71,13 +74,15 @@ public sealed partial class PlayerViewModel : ObservableObject
         CurrentPath = path;
         DurationSeconds = 0;
         PositionSeconds = startAt.TotalSeconds;
-        _pendingSubtitles = SubtitleFinder.FindFor(path);
+        _clock.Sync(startAt);
+        Subtitles.PrepareFor(path);
         _player.Open(path, startAt);
     }
 
     public void Stop()
     {
         _player.Stop();
+        Subtitles.Stop();
         CurrentPath = null;
         IsPlaying = false;
         PositionSeconds = 0;
@@ -106,6 +111,7 @@ public sealed partial class PlayerViewModel : ObservableObject
     {
         var target = Math.Clamp(seconds, 0, Math.Max(0, DurationSeconds));
         PositionSeconds = target;
+        _clock.Sync(TimeSpan.FromSeconds(target));
         _player.Seek(TimeSpan.FromSeconds(target));
     }
 
@@ -130,17 +136,11 @@ public sealed partial class PlayerViewModel : ObservableObject
 
     public IReadOnlyList<TrackInfo> GetAudioTracks() => _player.GetAudioTracks();
 
-    public IReadOnlyList<TrackInfo> GetSubtitleTracks() => _player.GetSubtitleTracks();
-
     public int CurrentAudioTrack => _player.CurrentAudioTrack;
-
-    public int CurrentSubtitleTrack => _player.CurrentSubtitleTrack;
 
     public void SelectAudioTrack(int id) => _player.SelectAudioTrack(id);
 
-    public void SelectSubtitleTrack(int id) => _player.SelectSubtitleTrack(id);
-
-    public void LoadSubtitle(string path) => _player.LoadSubtitleFile(path, select: true);
+    public void LoadSubtitle(string path) => Subtitles.AddFile(path);
 
     partial void OnVolumeChanged(double value)
     {
@@ -150,7 +150,13 @@ public sealed partial class PlayerViewModel : ObservableObject
 
     partial void OnIsMutedChanged(bool value) => _player.IsMuted = value;
 
-    partial void OnRateChanged(float value) => _player.Rate = value;
+    partial void OnRateChanged(float value)
+    {
+        _player.Rate = value;
+        _clock.SetRate(value);
+    }
+
+    partial void OnIsPlayingChanged(bool value) => _clock.SetRunning(value);
 
     partial void OnPositionSecondsChanged(double value) => PositionText = TimeFormat.Format(value);
 
@@ -162,7 +168,7 @@ public sealed partial class PlayerViewModel : ObservableObject
         {
             case PlaybackState.Playing:
                 ApplyAudioSettings();
-                LoadPendingSubtitles();
+                Subtitles.OnPlaybackStarted();
                 break;
             case PlaybackState.Paused:
                 PlaybackPaused?.Invoke(this, EventArgs.Empty);
@@ -176,19 +182,8 @@ public sealed partial class PlayerViewModel : ObservableObject
 
     private void OnEnginePositionChanged(TimeSpan position)
     {
+        _clock.Sync(position);
         if (!_isUserSeeking) PositionSeconds = position.TotalSeconds;
-    }
-
-    // Ondertitels kunnen pas toegevoegd worden als het bestand speelt. De beste wordt meteen getoond.
-    private void LoadPendingSubtitles()
-    {
-        var subtitles = _pendingSubtitles;
-        _pendingSubtitles = Array.Empty<string>();
-
-        for (var i = 0; i < subtitles.Count; i++)
-        {
-            _player.LoadSubtitleFile(subtitles[i], select: i == 0);
-        }
     }
 
     // Volume en mute worden pas betrouwbaar toegepast zodra de audio-uitvoer bestaat.

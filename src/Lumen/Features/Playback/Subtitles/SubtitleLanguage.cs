@@ -1,34 +1,23 @@
+using Lumen.Features.Playback.Tracks;
+
 namespace Lumen.Features.Playback.Subtitles;
 
-/// <summary>Herkent de taal in een ondertitelnaam ("Film.nl.srt", "2_Dutch.srt") en rangschikt: Nederlands, Engels, rest.</summary>
+/// <summary>Rangschikt ondertitels op voorkeur: Nederlands, Engels, rest. Geforceerde ondertitels achteraan.</summary>
 public static class SubtitleLanguage
 {
-    private static readonly char[] Separators = { '.', '_', '-', ' ', '(', ')', '[', ']' };
+    private static readonly HashSet<string> ForcedTokens = new(StringComparer.OrdinalIgnoreCase) { "forced", "foreign" };
 
-    private static readonly HashSet<string> DutchTokens = new(StringComparer.OrdinalIgnoreCase)
+    /// <summary>Lager = beter.</summary>
+    public static int PreferenceRank(string path, string videoName)
     {
-        "nl", "nld", "dut", "dutch", "nederlands", "vlaams", "flemish",
-    };
-
-    private static readonly HashSet<string> EnglishTokens = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "en", "eng", "english", "engels",
-    };
-
-    private static readonly HashSet<string> ForcedTokens = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "forced", "foreign",
-    };
-
-    /// <summary>Lager = beter. Geforceerde ondertitels (alleen anderstalige stukjes) komen achteraan.</summary>
-    public static int PreferenceRank(string subtitlePath)
-    {
-        var tokens = Path.GetFileNameWithoutExtension(subtitlePath)
-            .Split(Separators, StringSplitOptions.RemoveEmptyEntries);
-
+        var tokens = TrackLabel.FileSuffixTokens(path, videoName);
         var penalty = tokens.Any(ForcedTokens.Contains) ? 10 : 0;
-        if (tokens.Any(DutchTokens.Contains)) return penalty;
-        if (tokens.Any(EnglishTokens.Contains)) return penalty + 1;
-        return penalty + 2;
+
+        return LanguageNames.FirstIn(tokens) switch
+        {
+            LanguageNames.Dutch => penalty,
+            LanguageNames.English => penalty + 1,
+            _ => penalty + 2,
+        };
     }
 }

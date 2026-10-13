@@ -26,6 +26,8 @@ public sealed class VlcVideoFrameSource : IVideoFrameSource, IDisposable
     private int _width;
     private int _height;
     private int _stride;
+    private int _visibleWidth;
+    private int _visibleHeight;
 
     public VlcVideoFrameSource(MediaPlayer player)
     {
@@ -44,9 +46,23 @@ public sealed class VlcVideoFrameSource : IVideoFrameSource, IDisposable
     {
         lock (_gate)
         {
-            if (_width == 0 || _height == 0) return false;
-            reader(_frame, _width, _height, _stride);
+            if (_visibleWidth == 0 || _visibleHeight == 0) return false;
+            reader(_frame, _visibleWidth, _visibleHeight, _stride);
             return true;
+        }
+    }
+
+    /// <summary>
+    /// De echte beeldgrootte. VLC decodeert soms enkele rijen extra (bv. 1088 i.p.v. 1080);
+    /// die worden zo weggelaten.
+    /// </summary>
+    public void SetVisibleSize(int width, int height)
+    {
+        lock (_gate)
+        {
+            if (width <= 0 || height <= 0) return;
+            _visibleWidth = Math.Min(width, _width);
+            _visibleHeight = Math.Min(height, _height);
         }
     }
 
@@ -68,6 +84,8 @@ public sealed class VlcVideoFrameSource : IVideoFrameSource, IDisposable
             _width = (int)width;
             _height = (int)height;
             _stride = stride;
+            _visibleWidth = (int)width;
+            _visibleHeight = (int)height;
             _frame = new byte[stride * (int)height];
         }
 
@@ -81,6 +99,8 @@ public sealed class VlcVideoFrameSource : IVideoFrameSource, IDisposable
         {
             _width = 0;
             _height = 0;
+            _visibleWidth = 0;
+            _visibleHeight = 0;
         }
 
         FrameReady?.Invoke(this, EventArgs.Empty);

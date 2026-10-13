@@ -137,6 +137,17 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService
         _player.Stopped += (_, _) => SetState(PlaybackState.Stopped);
         _player.EndReached += (_, _) => SetState(PlaybackState.Ended);
         _player.EncounteredError += (_, _) => SetState(PlaybackState.Error);
+        // Niet vanuit het VLC-event zelf aanroepen (deadlock-gevaar), dus via de threadpool.
+        _player.Vout += (_, _) => ThreadPool.QueueUserWorkItem(_ => UpdateVisibleVideoSize());
+    }
+
+    private void UpdateVisibleVideoSize()
+    {
+        uint width = 0, height = 0;
+        if (_player.Size(0, ref width, ref height))
+        {
+            _frames.SetVisibleSize((int)width, (int)height);
+        }
     }
 
     private void SetState(PlaybackState state)

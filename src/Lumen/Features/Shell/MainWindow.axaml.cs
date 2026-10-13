@@ -28,6 +28,7 @@ public partial class MainWindow : Window
         PlayerSurface.Clicked += (_, _) => viewModel.Player.TogglePlayPause();
         PlayerSurface.DoubleClicked += (_, _) => viewModel.ToggleFullScreenCommand.Execute(null);
 
+        SubtitleLayer.SetRaised(true);
         ConfigureTitleBar();
         WireInput(viewModel);
         viewModel.PropertyChanged += OnViewModelPropertyChanged;
@@ -97,6 +98,7 @@ public partial class MainWindow : Window
             case nameof(MainViewModel.ControlsVisible):
                 // Muisaanwijzer verbergen samen met de bediening.
                 PlayerArea.Cursor = vm.ControlsVisible ? Cursor.Default : HiddenCursor;
+                SubtitleLayer.SetRaised(vm.ControlsVisible);
                 break;
         }
     }

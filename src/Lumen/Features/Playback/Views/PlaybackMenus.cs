@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Media;
+using Lumen.Features.Playback.Tracks;
 
 namespace Lumen.Features.Playback.Views;
 
@@ -8,7 +9,7 @@ public static class PlaybackMenus
 {
     public static void ShowSpeed(Control anchor, PlayerViewModel player)
     {
-        var items = PlayerViewModel.PlaybackRates.Select(rate => Option(
+        var items = PlayerViewModel.PlaybackRates.Select(rate => (Control)Option(
             anchor,
             rate == 1f ? "Normaal (1×)" : TimeFormat.FormatRate(rate),
             Math.Abs(rate - player.Rate) < 0.01f,
@@ -19,23 +20,23 @@ public static class PlaybackMenus
 
     public static void ShowAudioTracks(Control anchor, PlayerViewModel player)
     {
-        var tracks = player.GetAudioTracks();
         var current = player.CurrentAudioTrack;
-        IEnumerable<Control> items = tracks.Count == 0
-            ? new[] { Info("Geen audiosporen") }
-            : tracks.Select(t => Option(anchor, t.IsDisabledTrack ? "Uit" : t.Name, t.Id == current, () => player.SelectAudioTrack(t.Id)));
+        var items = player.GetAudioTracks()
+            .Where(t => !t.IsDisabledTrack)
+            .Select(t => (Control)Option(anchor, TrackLabel.ForEngineTrack(t.Name, t.Id), t.Id == current, () => player.SelectAudioTrack(t.Id)))
+            .ToList();
 
+        if (items.Count == 0) items.Add(Info("Geen audiosporen"));
         Show(anchor, items);
     }
 
     public static void ShowSubtitles(Control anchor, PlayerViewModel player, Action loadFromFile)
     {
-        var current = player.CurrentSubtitleTrack;
-        var items = player.GetSubtitleTracks()
-            .Select(t => (Control)Option(anchor, t.IsDisabledTrack ? "Uit" : t.Name, t.Id == current, () => player.SelectSubtitleTrack(t.Id)))
+        var subtitles = player.Subtitles;
+        var items = subtitles.GetOptions()
+            .Select(o => (Control)Option(anchor, o.Label, o.IsSelected, () => subtitles.Select(o)))
             .ToList();
 
-        if (items.Count == 0) items.Add(Info("Geen ondertitels in dit bestand"));
         items.Add(new Separator());
         items.Add(Option(anchor, "Ondertitelbestand laden…", false, loadFromFile));
 

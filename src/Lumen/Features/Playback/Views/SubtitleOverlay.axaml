@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:subtitles="using:Lumen.Features.Playback.Subtitles"
+             x:Class="Lumen.Features.Playback.Views.SubtitleOverlay"
+             x:DataType="subtitles:SubtitlesViewModel"
+             IsHitTestVisible="False">
+
+  <UserControl.Styles>
+    <Style Selector="Border#Cue">
+      <Setter Property="Margin" Value="0,0,0,44" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <ThicknessTransition Property="Margin" Duration="0:0:0.25" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <!-- Omhoog schuiven als de bediening zichtbaar is -->
+    <Style Selector=":is(UserControl).raised Border#Cue">
+      <Setter Property="Margin" Value="0,0,0,124" />
+    </Style>
+  </UserControl.Styles>
+
+  <Border x:Name="Cue"
+          HorizontalAlignment="Center" VerticalAlignment="Bottom"
+          Padding="14,6" CornerRadius="8"
+          Background="#B8000000"
+          IsVisible="{Binding HasText}">
+    <TextBlock x:Name="CueText"
+               Text="{Binding CurrentText}"
+               Foreground="White" FontWeight="SemiBold"
+               TextAlignment="Center" TextWrapping="Wrap" />
+  </Border>
+
+</UserControl>
