@@ -6,6 +6,7 @@ using Lumen.Features.Home;
 using Lumen.Features.Playback;
 using Lumen.Features.Playlist;
 using Lumen.Features.Settings;
+using Lumen.Features.Settings.Skins;
 using Lumen.Features.Updates;
 using Lumen.Infrastructure;
 
@@ -19,7 +20,6 @@ public sealed partial class MainViewModel : ObservableObject
 
     private readonly IHistoryStore _history;
     private readonly ISettingsStore _settings;
-    private readonly ThemeService _theme;
     private readonly IFilePickerService _picker;
     private readonly ControlsAutoHider _autoHider;
     private bool _isPointerOverControls;
@@ -52,6 +52,7 @@ public sealed partial class MainViewModel : ObservableObject
         IHistoryStore history,
         ISettingsStore settings,
         ThemeService theme,
+        SkinService skins,
         IFilePickerService picker)
     {
         Player = player;
@@ -60,7 +61,8 @@ public sealed partial class MainViewModel : ObservableObject
         Update = update;
         _history = history;
         _settings = settings;
-        _theme = theme;
+        Theme = theme;
+        Skins = skins;
         _picker = picker;
         _autoHider = new ControlsAutoHider(TimeSpan.FromSeconds(2.5), HideControlsWhenIdle);
 
@@ -74,6 +76,12 @@ public sealed partial class MainViewModel : ObservableObject
     public HomeViewModel Home { get; }
 
     public UpdateViewModel Update { get; }
+
+    /// <summary>Licht of donker.</summary>
+    public ThemeService Theme { get; }
+
+    /// <summary>Kleurthema (accentkleur).</summary>
+    public SkinService Skins { get; }
 
     public bool IsPlaylistPanelVisible => IsPlaylistOpen && !IsHomeVisible;
 
@@ -161,9 +169,6 @@ public sealed partial class MainViewModel : ObservableObject
 
     [RelayCommand]
     private void TogglePlaylist() => IsPlaylistOpen = !IsPlaylistOpen;
-
-    [RelayCommand]
-    private void ToggleTheme() => _theme.Toggle();
 
     public void ExitFullScreen() => IsFullScreen = false;
 

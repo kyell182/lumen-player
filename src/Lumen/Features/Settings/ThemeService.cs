@@ -14,13 +14,11 @@ public sealed class ThemeService
 
     public void ApplySaved() => Apply(Current);
 
-    public AppTheme Toggle()
+    public void Select(AppTheme theme)
     {
-        var next = Current == AppTheme.Dark ? AppTheme.Light : AppTheme.Dark;
-        _settings.Current.Theme = next;
+        _settings.Current.Theme = theme;
         _settings.Save();
-        Apply(next);
-        return next;
+        Apply(theme);
     }
 
     private static void Apply(AppTheme theme)

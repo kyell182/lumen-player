@@ -30,6 +30,7 @@ public partial class MainWindow : Window
         PlaceOverlay(_overlay);
 
         ConfigureTitleBar();
+        AppearanceButton.Click += (_, _) => AppearanceMenu.Show(AppearanceButton, viewModel.Theme, viewModel.Skins);
         WireInput(this, viewModel);
         viewModel.PropertyChanged += OnViewModelPropertyChanged;
         Closing += (_, _) => viewModel.Shutdown();
@@ -130,11 +131,16 @@ public partial class MainWindow : Window
         if (fullScreen)
         {
             _stateBeforeFullScreen = WindowState;
+            // Zonder dit blijft de bovenrand van het Windows-venster (in je accentkleur) zichtbaar.
+            ExtendClientAreaToDecorationsHint = false;
+            SystemDecorations = SystemDecorations.None;
             WindowState = WindowState.FullScreen;
         }
         else if (WindowState == WindowState.FullScreen)
         {
             WindowState = _stateBeforeFullScreen == WindowState.FullScreen ? WindowState.Normal : _stateBeforeFullScreen;
+            SystemDecorations = SystemDecorations.Full;
+            ExtendClientAreaToDecorationsHint = true;
         }
     }
 }

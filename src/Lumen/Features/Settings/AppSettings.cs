@@ -11,4 +11,6 @@ public sealed class AppSettings
     public double Volume { get; set; } = 80;
 
     public AppTheme Theme { get; set; } = AppTheme.Dark;
+
+    public string Skin { get; set; } = "Koraal";
 }

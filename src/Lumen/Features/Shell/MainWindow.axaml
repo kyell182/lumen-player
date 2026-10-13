@@ -26,7 +26,7 @@
             IsVisible="{Binding !IsFullScreen}">
       <Grid x:Name="TitleBarContent" ColumnDefinitions="Auto,*,Auto" Margin="14,0,8,0">
         <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center" IsHitTestVisible="False">
-          <Border Width="24" Height="24" CornerRadius="8" Background="{StaticResource BrandGradientBrush}">
+          <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource BrandGradientBrush}">
             <PathIcon Data="{StaticResource IconPlay}" Width="11" Height="11" Foreground="White" Margin="1,0,0,0" />
           </Border>
           <TextBlock Text="Lumen" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
@@ -45,7 +45,7 @@
           <Button Classes="icon small" Command="{Binding OpenFilesCommand}" ToolTip.Tip="Openen (Ctrl+O)">
             <PathIcon Data="{StaticResource IconFolderOpen}" />
           </Button>
-          <Button Classes="icon small" Command="{Binding ToggleThemeCommand}" ToolTip.Tip="Licht / donker thema">
+          <Button x:Name="AppearanceButton" Classes="icon small" ToolTip.Tip="Weergave: licht/donker en kleur">
             <PathIcon Data="{StaticResource IconTheme}" />
           </Button>
         </StackPanel>

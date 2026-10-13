@@ -14,7 +14,7 @@
               BorderThickness="1">
         <StackPanel Spacing="16" HorizontalAlignment="Center">
           <Border Width="80" Height="80" CornerRadius="26" HorizontalAlignment="Center"
-                  Background="{StaticResource BrandGradientBrush}">
+                  Background="{DynamicResource BrandGradientBrush}">
             <PathIcon Data="{StaticResource IconPlay}" Width="36" Height="36" Foreground="White" Margin="4,0,0,0" />
           </Border>
 

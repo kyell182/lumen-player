@@ -11,7 +11,7 @@
     <Grid ColumnDefinitions="Auto,*,Auto">
 
       <Border Width="32" Height="32" CornerRadius="10" Margin="0,0,12,0" VerticalAlignment="Center"
-              Background="{StaticResource BrandGradientBrush}">
+              Background="{DynamicResource BrandGradientBrush}">
         <PathIcon Data="{StaticResource IconDownload}" Width="16" Height="16" Foreground="White" />
       </Border>
 

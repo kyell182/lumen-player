@@ -30,6 +30,7 @@ public partial class App : Application
         MainWindow? window = null;
         _services = new AppServices(() => window);
         _services.Theme.ApplySaved();
+        _services.Skins.ApplySaved();
 
         var viewModel = _services.CreateMainViewModel();
         window = new MainWindow(viewModel, _services.VideoOutput);

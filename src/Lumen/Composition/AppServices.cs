@@ -7,6 +7,7 @@ using Lumen.Features.Playback;
 using Lumen.Features.Playback.Video;
 using Lumen.Features.Playlist;
 using Lumen.Features.Settings;
+using Lumen.Features.Settings.Skins;
 using Lumen.Features.Shell;
 using Lumen.Features.Updates;
 using Lumen.Features.Updates.Installers;
@@ -25,6 +26,7 @@ public sealed class AppServices : IDisposable
         Settings = new JsonSettingsStore(new JsonFileStore<AppSettings>(AppPaths.DataFile("settings.json")));
         History = new JsonHistoryStore(new JsonFileStore<List<RecentItem>>(AppPaths.DataFile("history.json")));
         Theme = new ThemeService(Settings);
+        Skins = new SkinService(Settings);
         FilePicker = new FilePickerService(topLevel);
         _mediaPlayer = new VlcMediaPlayerService(VideoOutputModes.ForCurrentPlatform());
         Updates = new UpdateService(
@@ -38,6 +40,8 @@ public sealed class AppServices : IDisposable
     public IHistoryStore History { get; }
 
     public ThemeService Theme { get; }
+
+    public SkinService Skins { get; }
 
     public IFilePickerService FilePicker { get; }
 
@@ -55,6 +59,7 @@ public sealed class AppServices : IDisposable
         History,
         Settings,
         Theme,
+        Skins,
         FilePicker);
 
     public void Dispose()

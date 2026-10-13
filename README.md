@@ -11,7 +11,7 @@ Alles wat VLC kan afspelen, speelt Lumen ook af — maar dan in een interface di
 - Ondertitels worden automatisch gevonden (zelfde naam, `Film.nl.srt`, mappen `Subs/`), Nederlands krijgt voorrang; of sleep een `.srt` op de video
 - Afspeelsnelheid 0,5× – 2×
 - Volledig scherm waarbij de bediening zichzelf verbergt
-- Licht en donker thema, volume en thema worden onthouden
+- Licht en donker thema plus 8 kleurskins (Koraal, Oceaan, Smaragd, Violet, Roos, Zonsondergang, IJs, Grafiet)
 - Automatische updates
 
 ## Automatische updates
