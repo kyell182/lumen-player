@@ -26,7 +26,7 @@ public sealed class AppServices : IDisposable
         History = new JsonHistoryStore(new JsonFileStore<List<RecentItem>>(AppPaths.DataFile("history.json")));
         Theme = new ThemeService(Settings);
         FilePicker = new FilePickerService(topLevel);
-        _mediaPlayer = new VlcMediaPlayerService();
+        _mediaPlayer = new VlcMediaPlayerService(VideoOutputModes.ForCurrentPlatform());
         Updates = new UpdateService(
             new GitHubReleaseSource(_http),
             new UpdateDownloader(_http),
@@ -45,7 +45,7 @@ public sealed class AppServices : IDisposable
 
     public IMediaPlayerService MediaPlayer => _mediaPlayer;
 
-    public IVideoFrameSource VideoFrames => _mediaPlayer.Frames;
+    public VideoOutput VideoOutput => _mediaPlayer.Output;
 
     public MainViewModel CreateMainViewModel() => new(
         new PlayerViewModel(MediaPlayer, Settings.Current.Volume),

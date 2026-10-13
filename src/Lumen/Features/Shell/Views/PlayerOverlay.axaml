@@ -1,0 +1,15 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:shell="using:Lumen.Features.Shell"
+             xmlns:shellViews="using:Lumen.Features.Shell.Views"
+             xmlns:playbackViews="using:Lumen.Features.Playback.Views"
+             x:Class="Lumen.Features.Shell.Views.PlayerOverlay"
+             x:DataType="shell:MainViewModel">
+
+  <!-- Bijna doorzichtige achtergrond, zodat klikken op de video hier binnenkomen -->
+  <Panel x:Name="Root" Background="#01000000">
+    <playbackViews:SubtitleOverlay x:Name="SubtitleLayer" DataContext="{Binding Player.Subtitles}" />
+    <shellViews:ControlBar Classes.faded="{Binding !ControlsVisible}" VerticalAlignment="Bottom" />
+  </Panel>
+
+</UserControl>

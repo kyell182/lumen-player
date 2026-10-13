@@ -1,49 +1,28 @@
 using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Threading;
 using Lumen.Features.Playback.Video;
 
 namespace Lumen.Features.Playback.Views;
 
-/// <summary>
-/// Het videovlak. Eén klik = <see cref="Clicked"/>, dubbelklik = <see cref="DoubleClicked"/>
-/// (een enkele klik wacht even, zodat een dubbelklik niet ook als klik telt).
-/// </summary>
+/// <summary>Het videovlak: tekent frames zelf, of laat VLC in een native venster tekenen.</summary>
 public partial class PlayerView : UserControl
 {
-    private static readonly TimeSpan DoubleClickWindow = TimeSpan.FromMilliseconds(250);
+    public PlayerView() => InitializeComponent();
 
-    private readonly DispatcherTimer _singleClickTimer;
+    /// <summary>True als de video in een native venster staat (dan kan er niets overheen getekend worden).</summary>
+    public bool UsesNativeWindow { get; private set; }
 
-    public PlayerView()
+    public void Show(VideoOutput output)
     {
-        InitializeComponent();
-
-        _singleClickTimer = new DispatcherTimer { Interval = DoubleClickWindow };
-        _singleClickTimer.Tick += (_, _) =>
+        if (output.Frames is { } frames)
         {
-            _singleClickTimer.Stop();
-            Clicked?.Invoke(this, EventArgs.Empty);
-        };
-
-        Tapped += OnTapped;
-        DoubleTapped += OnDoubleTapped;
-    }
-
-    public event EventHandler? Clicked;
-    public event EventHandler? DoubleClicked;
-
-    public void AttachVideo(IVideoFrameSource source) => Video.Attach(source);
-
-    private void OnTapped(object? sender, TappedEventArgs e)
-    {
-        _singleClickTimer.Stop();
-        _singleClickTimer.Start();
-    }
-
-    private void OnDoubleTapped(object? sender, TappedEventArgs e)
-    {
-        _singleClickTimer.Stop();
-        DoubleClicked?.Invoke(this, EventArgs.Empty);
+            var surface = new VideoSurface();
+            surface.Attach(frames);
+            Host.Content = surface;
+        }
+        else if (output.NativeTarget is { } target)
+        {
+            Host.Content = new VideoHost(target);
+            UsesNativeWindow = true;
+        }
     }
 }

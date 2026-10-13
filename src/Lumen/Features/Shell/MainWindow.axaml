@@ -65,11 +65,7 @@
       <Panel x:Name="PlayerArea" IsVisible="{Binding !IsHomeVisible}"
              Background="{DynamicResource VideoBackgroundBrush}">
         <playbackViews:PlayerView x:Name="PlayerSurface" />
-        <playbackViews:SubtitleOverlay x:Name="SubtitleLayer" DataContext="{Binding Player.Subtitles}" />
-        <!-- Bediening ligt over de video en verdwijnt vanzelf -->
-        <shellViews:ControlBar x:Name="ControlsOverlay"
-                               Classes.faded="{Binding !ControlsVisible}"
-                               VerticalAlignment="Bottom" />
+        <!-- De PlayerOverlay (bediening + ondertitels) komt hier of in een apart OverlayWindow: zie MainWindow.axaml.cs -->
       </Panel>
       <Panel Grid.Column="1" Width="320" IsVisible="{Binding IsPlaylistPanelVisible}">
         <playlistViews:PlaylistPanel DataContext="{Binding Playlist}" />

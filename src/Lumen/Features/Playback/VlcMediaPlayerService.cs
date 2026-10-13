@@ -20,10 +20,11 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService
     private readonly LibVLC _libVlc;
     private readonly MediaPlayer _player;
     private readonly VlcLogWriter _log = new();
-    private readonly VlcVideoFrameSource _frames;
+    private readonly VlcVideoFrameSource? _frames;
+    private readonly VlcNativeWindowTarget? _nativeTarget;
     private Media? _media;
 
-    public VlcMediaPlayerService()
+    public VlcMediaPlayerService(VideoOutputMode outputMode)
     {
         _libVlc = new LibVLC(false, EngineOptions);
         _log.Attach(_libVlc);
@@ -33,7 +34,8 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService
             EnableKeyInput = false,
             EnableMouseInput = false,
         };
-        _frames = new VlcVideoFrameSource(_player);
+        if (outputMode == VideoOutputMode.Frames) _frames = new VlcVideoFrameSource(_player);
+        else _nativeTarget = new VlcNativeWindowTarget(_player);
         HookEngineEvents();
     }
 
@@ -41,8 +43,8 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService
     public event EventHandler<TimeSpan>? PositionChanged;
     public event EventHandler<TimeSpan>? DurationChanged;
 
-    /// <summary>De videobeelden die Lumen zelf tekent.</summary>
-    public IVideoFrameSource Frames => _frames;
+    /// <summary>Waar de video naartoe gaat: frames voor Lumen, of een native venster.</summary>
+    public VideoOutput Output => new(_frames, _nativeTarget);
 
     public PlaybackState State { get; private set; } = PlaybackState.Idle;
 
@@ -76,9 +78,11 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService
             media.AddOption(":start-time=" + startAt.TotalSeconds.ToString("0.###", CultureInfo.InvariantCulture));
         }
 
-        _player.Play(media);
         _media?.Dispose();
         _media = media;
+
+        if (_nativeTarget is { } target) target.RunWhenReady(() => _player.Play(media));
+        else _player.Play(media);
     }
 
     public void Play()
@@ -123,7 +127,7 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService
         _player.Stop();
         _media?.Dispose();
         _player.Dispose();
-        _frames.Dispose();
+        _frames?.Dispose();
         _libVlc.Dispose();
     }
 
@@ -138,7 +142,10 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService
         _player.EndReached += (_, _) => SetState(PlaybackState.Ended);
         _player.EncounteredError += (_, _) => SetState(PlaybackState.Error);
         // Niet vanuit het VLC-event zelf aanroepen (deadlock-gevaar), dus via de threadpool.
-        _player.Vout += (_, _) => ThreadPool.QueueUserWorkItem(_ => UpdateVisibleVideoSize());
+        if (_frames is not null)
+        {
+            _player.Vout += (_, _) => ThreadPool.QueueUserWorkItem(_ => UpdateVisibleVideoSize());
+        }
     }
 
     private void UpdateVisibleVideoSize()
@@ -146,7 +153,7 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService
         uint width = 0, height = 0;
         if (_player.Size(0, ref width, ref height))
         {
-            _frames.SetVisibleSize((int)width, (int)height);
+            _frames?.SetVisibleSize((int)width, (int)height);
         }
     }
 

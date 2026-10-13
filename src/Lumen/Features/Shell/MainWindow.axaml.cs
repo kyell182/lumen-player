@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Lumen.Features.Playback.Video;
+using Lumen.Features.Shell.Views;
 
 namespace Lumen.Features.Shell;
 
@@ -14,28 +15,49 @@ public partial class MainWindow : Window
     private const double WindowsCaptionButtonsWidth = 140;
 
     private readonly KeyboardShortcuts? _shortcuts;
+    private readonly PlayerOverlay? _overlay;
     private WindowState _stateBeforeFullScreen = WindowState.Normal;
 
     public MainWindow() => InitializeComponent();
 
-    private static readonly Cursor HiddenCursor = new(StandardCursorType.None);
-
-    public MainWindow(MainViewModel viewModel, IVideoFrameSource video) : this()
+    public MainWindow(MainViewModel viewModel, VideoOutput video) : this()
     {
         DataContext = viewModel;
         _shortcuts = new KeyboardShortcuts(viewModel);
-        PlayerSurface.AttachVideo(video);
-        PlayerSurface.Clicked += (_, _) => viewModel.Player.TogglePlayPause();
-        PlayerSurface.DoubleClicked += (_, _) => viewModel.ToggleFullScreenCommand.Execute(null);
 
-        SubtitleLayer.SetRaised(true);
+        PlayerSurface.Show(video);
+        _overlay = CreateOverlay(viewModel);
+        PlaceOverlay(_overlay);
+
         ConfigureTitleBar();
-        WireInput(viewModel);
+        WireInput(this, viewModel);
         viewModel.PropertyChanged += OnViewModelPropertyChanged;
         Closing += (_, _) => viewModel.Shutdown();
     }
 
     private MainViewModel? ViewModel => DataContext as MainViewModel;
+
+    private static PlayerOverlay CreateOverlay(MainViewModel viewModel)
+    {
+        var overlay = new PlayerOverlay { DataContext = viewModel };
+        overlay.Clicked += (_, _) => viewModel.Player.TogglePlayPause();
+        overlay.DoubleClicked += (_, _) => viewModel.ToggleFullScreenCommand.Execute(null);
+        overlay.SetControlsVisible(true);
+        return overlay;
+    }
+
+    // Over een native videovenster kan Avalonia niet tekenen: dan komt de bediening in een eigen doorzichtig venster.
+    private void PlaceOverlay(PlayerOverlay overlay)
+    {
+        if (!PlayerSurface.UsesNativeWindow)
+        {
+            PlayerArea.Children.Add(overlay);
+            return;
+        }
+
+        var overlayWindow = new OverlayWindow(this, PlayerArea, overlay);
+        if (ViewModel is { } vm) WireInput(overlayWindow, vm);
+    }
 
     private void ConfigureTitleBar()
     {
@@ -50,13 +72,15 @@ public partial class MainWindow : Window
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
     }
 
-    private void WireInput(MainViewModel viewModel)
+    // Toetsen, muisbeweging en slepen werken zowel in het hoofdvenster als in het overlay-venster.
+    private void WireInput(Window window, MainViewModel viewModel)
     {
-        AddHandler(KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
-        AddHandler(PointerMovedEvent, (_, _) => viewModel.ReportUserActivity(),
+        DragDrop.SetAllowDrop(window, true);
+        window.AddHandler(KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
+        window.AddHandler(PointerMovedEvent, (_, _) => viewModel.ReportUserActivity(),
             RoutingStrategies.Tunnel, handledEventsToo: true);
-        AddHandler(DragDrop.DragOverEvent, OnDragOver);
-        AddHandler(DragDrop.DropEvent, OnDrop);
+        window.AddHandler(DragDrop.DragOverEvent, OnDragOver);
+        window.AddHandler(DragDrop.DropEvent, OnDrop);
     }
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
@@ -96,9 +120,7 @@ public partial class MainWindow : Window
                 ApplyFullScreen(vm.IsFullScreen);
                 break;
             case nameof(MainViewModel.ControlsVisible):
-                // Muisaanwijzer verbergen samen met de bediening.
-                PlayerArea.Cursor = vm.ControlsVisible ? Cursor.Default : HiddenCursor;
-                SubtitleLayer.SetRaised(vm.ControlsVisible);
+                _overlay?.SetControlsVisible(vm.ControlsVisible);
                 break;
         }
     }
