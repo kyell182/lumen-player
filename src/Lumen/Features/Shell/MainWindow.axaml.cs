@@ -62,6 +62,8 @@ public partial class MainWindow : Window
         }
     }
 
+    // De nieuwe DataTransfer-API bestaat pas vanaf recente Avalonia-versies; de klassieke API werkt overal.
+#pragma warning disable CS0618
     private static void OnDragOver(object? sender, DragEventArgs e) =>
         e.DragEffects = e.Data.Contains(DataFormats.Files) ? DragDropEffects.Copy : DragDropEffects.None;
 
@@ -77,6 +79,7 @@ public partial class MainWindow : Window
             ViewModel?.HandleDroppedPaths(paths);
         }
     }
+#pragma warning restore CS0618
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {

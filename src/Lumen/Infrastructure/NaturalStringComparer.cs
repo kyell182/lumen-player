@@ -1,7 +1,7 @@
 namespace Lumen.Infrastructure;
 
 /// <summary>Sorteert zoals een mens: "Aflevering 2" komt vóór "Aflevering 10".</summary>
-public sealed class NaturalStringComparer : IComparer<string>
+public sealed class NaturalStringComparer : IComparer<string?>
 {
     public static readonly NaturalStringComparer Instance = new();
 

@@ -32,7 +32,7 @@ public static class PlaybackMenus
     {
         var current = player.CurrentSubtitleTrack;
         var items = player.GetSubtitleTracks()
-            .Select(t => Option(anchor, t.IsDisabledTrack ? "Uit" : t.Name, t.Id == current, () => player.SelectSubtitleTrack(t.Id)))
+            .Select(t => (Control)Option(anchor, t.IsDisabledTrack ? "Uit" : t.Name, t.Id == current, () => player.SelectSubtitleTrack(t.Id)))
             .ToList();
 
         if (items.Count == 0) items.Add(Info("Geen ondertitels in dit bestand"));
