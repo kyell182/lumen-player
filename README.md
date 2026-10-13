@@ -12,7 +12,7 @@ Alles wat VLC kan afspelen, speelt Lumen ook af — maar dan in een interface di
 - Afspeelsnelheid 0,5× – 2×
 - Volledig scherm waarbij de bediening zichzelf verbergt
 - Licht en donker thema, volume en thema worden onthouden
-- Visualisatie bij muziekbestanden
+- Automatische updates
 
 ## Automatische updates
 
