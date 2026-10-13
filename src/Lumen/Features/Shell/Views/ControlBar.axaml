@@ -16,8 +16,7 @@
         <Slider x:Name="SeekSlider" Grid.Column="1" Margin="10,0"
                 Minimum="0"
                 Maximum="{Binding Player.DurationSeconds}"
-                Value="{Binding Player.PositionSeconds}"
-                IsMoveToPointEnabled="True" />
+                Value="{Binding Player.PositionSeconds}" />
         <TextBlock Grid.Column="2" Classes="time" MinWidth="54" TextAlignment="Right"
                    Text="{Binding Player.DurationText}" />
       </Grid>
