@@ -1,6 +1,7 @@
 using System.Globalization;
 using LibVLCSharp.Shared;
 using LibVLCSharp.Shared.Structures;
+using Lumen.Features.Playback.Video;
 
 namespace Lumen.Features.Playback;
 
@@ -8,7 +9,7 @@ namespace Lumen.Features.Playback;
 /// <see cref="IMediaPlayerService"/> op basis van libVLC.
 /// Belangrijk: roep nooit libVLC aan vanuit een libVLC-event (deadlock) — de viewmodels marshalen eerst naar de UI-thread.
 /// </summary>
-public sealed class VlcMediaPlayerService : IMediaPlayerService, IVlcVideoSource
+public sealed class VlcMediaPlayerService : IMediaPlayerService
 {
     private static readonly string[] EngineOptions =
     {
@@ -18,6 +19,7 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService, IVlcVideoSource
     private readonly LibVLC _libVlc;
     private readonly MediaPlayer _player;
     private readonly VlcLogWriter _log = new();
+    private readonly VlcVideoFrameSource _frames;
     private Media? _media;
 
     public VlcMediaPlayerService()
@@ -30,6 +32,7 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService, IVlcVideoSource
             EnableKeyInput = false,
             EnableMouseInput = false,
         };
+        _frames = new VlcVideoFrameSource(_player);
         HookEngineEvents();
     }
 
@@ -37,7 +40,8 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService, IVlcVideoSource
     public event EventHandler<TimeSpan>? PositionChanged;
     public event EventHandler<TimeSpan>? DurationChanged;
 
-    public MediaPlayer Surface => _player;
+    /// <summary>De videobeelden die Lumen zelf tekent.</summary>
+    public IVideoFrameSource Frames => _frames;
 
     public PlaybackState State { get; private set; } = PlaybackState.Idle;
 
@@ -118,6 +122,7 @@ public sealed class VlcMediaPlayerService : IMediaPlayerService, IVlcVideoSource
         _player.Stop();
         _media?.Dispose();
         _player.Dispose();
+        _frames.Dispose();
         _libVlc.Dispose();
     }
 

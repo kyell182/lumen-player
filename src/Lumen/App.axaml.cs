@@ -32,7 +32,7 @@ public partial class App : Application
         _services.Theme.ApplySaved();
 
         var viewModel = _services.CreateMainViewModel();
-        window = new MainWindow(viewModel, _services.VideoSource);
+        window = new MainWindow(viewModel, _services.VideoFrames);
         desktop.MainWindow = window;
 
         var startupArgs = desktop.Args ?? Array.Empty<string>();

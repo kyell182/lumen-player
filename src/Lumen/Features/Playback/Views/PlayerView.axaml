@@ -4,8 +4,8 @@
              x:Class="Lumen.Features.Playback.Views.PlayerView"
              Background="{DynamicResource VideoBackgroundBrush}">
 
-  <views:VideoHost x:Name="VideoSurface"
-                   HorizontalAlignment="Stretch"
-                   VerticalAlignment="Stretch" />
+  <views:VideoSurface x:Name="Video"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch" />
 
 </UserControl>

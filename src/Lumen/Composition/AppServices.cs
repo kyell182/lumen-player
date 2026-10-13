@@ -4,6 +4,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Lumen.Features.History;
 using Lumen.Features.Home;
 using Lumen.Features.Playback;
+using Lumen.Features.Playback.Video;
 using Lumen.Features.Playlist;
 using Lumen.Features.Settings;
 using Lumen.Features.Shell;
@@ -44,7 +45,7 @@ public sealed class AppServices : IDisposable
 
     public IMediaPlayerService MediaPlayer => _mediaPlayer;
 
-    public IVlcVideoSource VideoSource => _mediaPlayer;
+    public IVideoFrameSource VideoFrames => _mediaPlayer.Frames;
 
     public MainViewModel CreateMainViewModel() => new(
         new PlayerViewModel(MediaPlayer, Settings.Current.Volume),

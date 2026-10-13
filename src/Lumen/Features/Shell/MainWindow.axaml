@@ -19,7 +19,7 @@
         ExtendClientAreaTitleBarHeightHint="44"
         DragDrop.AllowDrop="True">
 
-  <Grid RowDefinitions="Auto,Auto,*,Auto">
+  <Grid RowDefinitions="Auto,Auto,*">
 
     <!-- Titelbalk -->
     <Border x:Name="TitleBar" Grid.Row="0" Height="44" Background="Transparent"
@@ -62,20 +62,19 @@
       <Panel IsVisible="{Binding IsHomeVisible}">
         <homeViews:HomeView DataContext="{Binding Home}" />
       </Panel>
-      <Panel IsVisible="{Binding !IsHomeVisible}">
+      <Panel x:Name="PlayerArea" IsVisible="{Binding !IsHomeVisible}"
+             Background="{DynamicResource VideoBackgroundBrush}">
         <playbackViews:PlayerView x:Name="PlayerSurface" />
+        <!-- Bediening ligt over de video en verdwijnt vanzelf -->
+        <shellViews:ControlBar x:Name="ControlsOverlay"
+                               Classes.faded="{Binding !ControlsVisible}"
+                               VerticalAlignment="Bottom" />
       </Panel>
       <Panel Grid.Column="1" Width="320" IsVisible="{Binding IsPlaylistPanelVisible}">
         <playlistViews:PlaylistPanel DataContext="{Binding Playlist}" />
       </Panel>
     </Grid>
 
-    <!-- Bediening -->
-    <shellViews:ControlBar Grid.Row="3" IsVisible="{Binding IsControlBarVisible}" />
-
-    <!-- Onzichtbare strook om de bediening terug te halen in volledig scherm -->
-    <Border Grid.Row="3" Height="10" Background="Transparent"
-            IsVisible="{Binding IsRevealStripVisible}" />
 
   </Grid>
 </Window>

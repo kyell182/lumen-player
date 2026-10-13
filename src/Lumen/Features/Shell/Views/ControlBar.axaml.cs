@@ -5,7 +5,7 @@ using Lumen.Features.Playback.Views;
 
 namespace Lumen.Features.Shell.Views;
 
-/// <summary>Bedieningsbalk onder de video.</summary>
+/// <summary>Bedieningsbalk die over de video ligt.</summary>
 public partial class ControlBar : UserControl
 {
     public ControlBar()
@@ -13,6 +13,8 @@ public partial class ControlBar : UserControl
         InitializeComponent();
         WireSeekSlider();
         WireMenus();
+        PointerEntered += (_, _) => ViewModel?.SetPointerOverControls(true);
+        PointerExited += (_, _) => ViewModel?.SetPointerOverControls(false);
     }
 
     private MainViewModel? ViewModel => DataContext as MainViewModel;

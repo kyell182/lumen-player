@@ -22,17 +22,16 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly ThemeService _theme;
     private readonly IFilePickerService _picker;
     private readonly ControlsAutoHider _autoHider;
+    private bool _isPointerOverControls;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsControlBarVisible), nameof(IsPlaylistPanelVisible))]
+    [NotifyPropertyChangedFor(nameof(IsPlaylistPanelVisible))]
     private bool _isHomeVisible = true;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsControlBarVisible), nameof(IsRevealStripVisible))]
     private bool _isFullScreen;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsControlBarVisible), nameof(IsRevealStripVisible))]
     private bool _controlsVisible = true;
 
     [ObservableProperty]
@@ -75,10 +74,6 @@ public sealed partial class MainViewModel : ObservableObject
     public HomeViewModel Home { get; }
 
     public UpdateViewModel Update { get; }
-
-    public bool IsControlBarVisible => !IsHomeVisible && (ControlsVisible || !IsFullScreen);
-
-    public bool IsRevealStripVisible => IsFullScreen && !ControlsVisible;
 
     public bool IsPlaylistPanelVisible => IsPlaylistOpen && !IsHomeVisible;
 
@@ -153,6 +148,8 @@ public sealed partial class MainViewModel : ObservableObject
         Player.Stop();
         IsFullScreen = false;
         IsHomeVisible = true;
+        _autoHider.Stop();
+        ControlsVisible = true;
         SetTitle(string.Empty);
         Home.Refresh();
     }
@@ -174,7 +171,14 @@ public sealed partial class MainViewModel : ObservableObject
     public void ReportUserActivity()
     {
         ControlsVisible = true;
-        if (IsFullScreen) _autoHider.Restart();
+        if (!IsHomeVisible) _autoHider.Restart();
+    }
+
+    /// <summary>Zolang de muis op de bediening staat, blijft die zichtbaar.</summary>
+    public void SetPointerOverControls(bool isOver)
+    {
+        _isPointerOverControls = isOver;
+        ReportUserActivity();
     }
 
     public void Shutdown()
@@ -185,12 +189,7 @@ public sealed partial class MainViewModel : ObservableObject
         _autoHider.Stop();
     }
 
-    partial void OnIsFullScreenChanged(bool value)
-    {
-        ControlsVisible = true;
-        if (value) _autoHider.Restart();
-        else _autoHider.Stop();
-    }
+    partial void OnIsFullScreenChanged(bool value) => ReportUserActivity();
 
     // ----- Intern -----
 
@@ -198,6 +197,10 @@ public sealed partial class MainViewModel : ObservableObject
     {
         Player.MediaEnded += (_, _) => OnMediaEnded();
         Player.PlaybackPaused += (_, _) => SaveProgress();
+        Player.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(PlayerViewModel.IsPlaying)) ReportUserActivity();
+        };
         Playlist.ItemActivated += (_, item) => PlayItem(item);
         Home.OpenFilesRequested += (_, _) => OpenFilesCommand.Execute(null);
         Home.OpenFolderRequested += (_, _) => OpenFolderCommand.Execute(null);
@@ -240,7 +243,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void HideControlsWhenIdle()
     {
-        if (IsFullScreen && Player.IsPlaying) ControlsVisible = false;
+        if (!IsHomeVisible && Player.IsPlaying && !_isPointerOverControls) ControlsVisible = false;
     }
 
     private void SetTitle(string title)

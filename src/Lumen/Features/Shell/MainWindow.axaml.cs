@@ -4,7 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
-using Lumen.Features.Playback;
+using Lumen.Features.Playback.Video;
 
 namespace Lumen.Features.Shell;
 
@@ -18,11 +18,15 @@ public partial class MainWindow : Window
 
     public MainWindow() => InitializeComponent();
 
-    public MainWindow(MainViewModel viewModel, IVlcVideoSource video) : this()
+    private static readonly Cursor HiddenCursor = new(StandardCursorType.None);
+
+    public MainWindow(MainViewModel viewModel, IVideoFrameSource video) : this()
     {
         DataContext = viewModel;
         _shortcuts = new KeyboardShortcuts(viewModel);
         PlayerSurface.AttachVideo(video);
+        PlayerSurface.Clicked += (_, _) => viewModel.Player.TogglePlayPause();
+        PlayerSurface.DoubleClicked += (_, _) => viewModel.ToggleFullScreenCommand.Execute(null);
 
         ConfigureTitleBar();
         WireInput(viewModel);
@@ -83,9 +87,17 @@ public partial class MainWindow : Window
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(MainViewModel.IsFullScreen) && ViewModel is { } vm)
+        if (ViewModel is not { } vm) return;
+
+        switch (e.PropertyName)
         {
-            ApplyFullScreen(vm.IsFullScreen);
+            case nameof(MainViewModel.IsFullScreen):
+                ApplyFullScreen(vm.IsFullScreen);
+                break;
+            case nameof(MainViewModel.ControlsVisible):
+                // Muisaanwijzer verbergen samen met de bediening.
+                PlayerArea.Cursor = vm.ControlsVisible ? Cursor.Default : HiddenCursor;
+                break;
         }
     }
 
